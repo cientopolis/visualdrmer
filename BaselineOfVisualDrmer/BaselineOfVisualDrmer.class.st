@@ -23,6 +23,11 @@ BaselineOfVisualDrmer >> drmer: spec [
 		with: [ spec repository: 'github://cientopolis/drmer:main' ].
 ]
 
+{ #category : #postloading }
+BaselineOfVisualDrmer >> postLoadActions [
+	self.
+]
+
 { #category : #baselines }
 BaselineOfVisualDrmer >> roassal3: spec [
 	spec
