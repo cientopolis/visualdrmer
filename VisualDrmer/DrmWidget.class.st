@@ -95,14 +95,15 @@ DrmWidget >> createMorph [
 ]
 
 { #category : #running }
-DrmWidget >> createNodes:unModelo [
-	|shapes labels|
+DrmWidget >> createNodes: unModelo [
+	| shapes labels |
 	shapes := self model factors
-		collect: [ :factor |  self createRoassalNode: factor ]as:RSGroup.
+		collect: [ :factor | self createRoassalNode: factor ]
+		as: RSGroup.
 	labels := shapes collect: [ :shape | shape propertyAt: #label ].
 	canvas addAll: shapes.
 	canvas addAll: labels.
-	^shapes
+	^ shapes
 ]
 
 { #category : #running }
