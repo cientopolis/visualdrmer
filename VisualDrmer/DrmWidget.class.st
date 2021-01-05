@@ -1,15 +1,15 @@
 Class {
-	#name : #DrmVisualitation,
+	#name : #DrmWidget,
 	#superclass : #Object,
 	#instVars : [
 		'canvas',
 		'model'
 	],
-	#category : #VisualDrmer
+	#category : #'VisualDrmer-RoassalWidget'
 }
 
 { #category : #running }
-DrmVisualitation >> applyLayout:shapes edges:edges [
+DrmWidget >> applyLayout:shapes edges:edges [
 	|layout|
 	layout := RSForceBasedLayout new.
 	layout nodes: shapes.
@@ -28,8 +28,13 @@ DrmVisualitation >> applyLayout:shapes edges:edges [
 	layout runLayoutSimply.
 ]
 
+{ #category : #accessing }
+DrmWidget >> canvas [
+	^ canvas
+]
+
 { #category : #running }
-DrmVisualitation >> createEdges [
+DrmWidget >> createEdges [
 	|marker|
 	marker:= RSShapeFactory arrow.
 	marker size: 10. 
@@ -49,7 +54,7 @@ DrmVisualitation >> createEdges [
 ]
 
 { #category : #running }
-DrmVisualitation >> createFactorBackground: unFactor [
+DrmWidget >> createFactorBackground: unFactor [
 	|border|
 	border:= unFactor isExternal 
 		ifTrue: [ RSBorder new dashArray: #(4) ] 
@@ -60,7 +65,7 @@ DrmVisualitation >> createFactorBackground: unFactor [
 ]
 
 { #category : #running }
-DrmVisualitation >> createLineLabelFor:line [
+DrmWidget >> createLineLabelFor:line [
 	|link percents|
 	link:= line model.
 	percents:=#(0.2 0.5 0.8). 
@@ -84,10 +89,14 @@ DrmVisualitation >> createLineLabelFor:line [
 	
 ]
 
+{ #category : #morphic }
+DrmWidget >> createMorph [
+	^ canvas createMorph
+]
+
 { #category : #running }
-DrmVisualitation >> createNodes:unModelo [
+DrmWidget >> createNodes:unModelo [
 	|shapes labels|
-	self model: unModelo.
 	shapes := self model factors
 		collect: [ :factor |  self createRoassalNode: factor ]as:RSGroup.
 	labels := shapes collect: [ :shape | shape propertyAt: #label ].
@@ -97,7 +106,7 @@ DrmVisualitation >> createNodes:unModelo [
 ]
 
 { #category : #running }
-DrmVisualitation >> createRoassalLabel: size for: unFactor [
+DrmWidget >> createRoassalLabel: size for: unFactor [
 	| shapeBuilder label |
 	shapeBuilder := RSMultilineLabelBuilder new.
 	shapeBuilder wrapStrategy: (RSWrapStrategy new wrapMaxWidth: size).
@@ -106,7 +115,7 @@ DrmVisualitation >> createRoassalLabel: size for: unFactor [
 ]
 
 { #category : #running }
-DrmVisualitation >> createRoassalNode: factors [
+DrmWidget >> createRoassalNode: factors [
 	| label shape|
 	label := self createRoassalLabel:100 for: factors.
 	shape:= factors createBackground:self .
@@ -120,31 +129,36 @@ DrmVisualitation >> createRoassalNode: factors [
 ]
 
 { #category : #running }
-DrmVisualitation >> createSupportBackground [
+DrmWidget >> createSupportBackground [
 	^ RSShapeFactory hexagon
 		withBorder;
 		yourself
 ]
 
 { #category : #running }
-DrmVisualitation >> initialize [
+DrmWidget >> initialize [
 	super initialize.
 	canvas:= RSCanvas new.
 	
 ]
 
 { #category : #running }
-DrmVisualitation >> model [
+DrmWidget >> model [
 	^model
 ]
 
 { #category : #running }
-DrmVisualitation >> model: anObject [
-	model := anObject
+DrmWidget >> model: anObject [
+	| shapes edges |
+	model := anObject.
+	shapes := self createNodes: model.
+	edges := self createEdges.
+	self applyLayout: shapes edges: edges.
+	canvas @ RSCanvasController
 ]
 
 { #category : #running }
-DrmVisualitation >> open:unModelo [
+DrmWidget >> open:unModelo [
 	|shapes edges|
 	shapes:= self createNodes:unModelo .
 	edges:= self createEdges.
@@ -155,11 +169,13 @@ DrmVisualitation >> open:unModelo [
 ]
 
 { #category : #running }
-DrmVisualitation >> run [
-<script:'self new open:DrmModelBuilder figureTp'>
+DrmWidget >> run [
+	<script: 'self new open:DrmModelBuilder figureTp'>
+	
 ]
 
 { #category : #running }
-DrmVisualitation >> runProfe [
-<script:'self new open:DrmModelBuilder figureTwoDotSix'>
+DrmWidget >> runProfe [
+	<script: 'self new open: DrmModelBuilder figureTwoDotSix'>
+	
 ]
