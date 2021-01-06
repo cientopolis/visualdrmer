@@ -136,6 +136,9 @@ DrmDiagramPresenter >> nodeFor: aFactor [
 	shape := RSComposite new.
 	shape model: aFactor.
 	shape
+		when: RSPositionChangedEvent
+		do: [ shape model propertiesDictionary at: #position put: shape position ].
+	shape
 		shapes:
 			{form.
 			label}.
