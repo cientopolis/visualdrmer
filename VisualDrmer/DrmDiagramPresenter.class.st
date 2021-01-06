@@ -20,7 +20,7 @@ DrmDiagramPresenter class >> defaultSpec [
 DrmDiagramPresenter >> addNodesTo: aCanvas [
 	| shapes |
 	shapes := model factors
-		collect: [ :aFactor | self createRoassalNodeFor: aFactor ]
+		collect: [ :aFactor | self createCompositeRoassalNodeFor: aFactor ]
 		as: RSGroup.
 	aCanvas addAll: shapes
 ]
@@ -31,20 +31,49 @@ DrmDiagramPresenter >> configureCanvas: canvas [
    self addNodesTo: canvas.
    self layout: canvas.
    canvas @ RSCanvasController.
+   canvas nodes when: RSMouseClick do: [ :evt | evt shape inspect ].
  
 ]
 
 { #category : #'canvas configuration' }
-DrmDiagramPresenter >> createRoassalNodeFor: aFactor [
-	| shape |
-	shape := RSEllipse new.
-	shape draggable.
-	shape color: Color white.
-   shape border: RSBorder new.
-   shape extent: 120 @ 80.
+DrmDiagramPresenter >> createCompositeRoassalNodeFor: aFactor [
+	"Inspired on the class comment of RSComposite"
+
+	| form label shape labelBuilder |
+	form := self createFormFor: aFactor.
+	labelBuilder := RSMultilineLabelBuilder new.
+	labelBuilder wrapStrategy: (RSWrapStrategy new wrapMaxWidth: 100).
+	label := labelBuilder shapeFor: aFactor printString.
+	RSLocation new
+		middle;
+		center;
+		move: form on: label.
+	shape := RSComposite new.
 	shape model: aFactor.
-	shape popup.
-	^ shape
+	shape
+		shapes:
+			{form.
+			label}.
+	^ shape @ RSDraggable
+]
+
+{ #category : #'canvas configuration' }
+DrmDiagramPresenter >> createFormFor: aFactor [
+	| form |
+	aFactor class == DrmFactor
+		ifTrue: [ form := RSEllipse new.
+			form
+				border:
+					(aFactor isExternal
+						ifTrue: [ RSBorder new dashArray: #(4) ]
+						ifFalse: [ RSBorder new ]) ].
+	aFactor class == DrmSupport
+		ifTrue: [ form := RSShapeFactory hexagon.
+			form border: RSBorder new ].
+	form
+		color: Color white;
+		extent: 120 @ 80.
+	^ form
 ]
 
 { #category : #initialization }
@@ -102,7 +131,7 @@ DrmDiagramPresenter >> nodeRemovedAnnouncement: aDrmNodeRemovedAnnouncement [
 
 { #category : #running }
 DrmDiagramPresenter >> run [
-	<script: 'self new model: (DrmModelBuilder figureTp inspect; yourself); openWithSpec'>
+	<script: 'self new model: (DrmModelBuilder figureTp); openWithSpec'>
 ]
 
 { #category : #announcements }
