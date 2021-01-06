@@ -2,7 +2,7 @@ Extension { #name : #DrmModelBuilder }
 
 { #category : #'*VisualDrmer' }
 DrmModelBuilder class >> figureTp [
-	| builder costOfProduction amountOfProfit timeToMarket link qualityOfProduct customerSatisfaction qualityOfProblemDefinition supportProblemDefinition qualityOfdesing numberOfmodi porcentaje|
+	| builder costOfProduction amountOfProfit timeToMarket link qualityOfProduct customerSatisfaction qualityOfProblemDefinition supportProblemDefinition qualityOfdesing numberOfmodi porcentaje |
 	builder := self new.
 	costOfProduction := builder
 		factorOnAttribute: 'cost'
@@ -31,7 +31,11 @@ DrmModelBuilder class >> figureTp [
 		addSource:
 			(builder
 				referenceLabeled: '5'
-				citation: 'Gomez A. El libro de los sueños (1996).').
+				citation: 'Gomez A. El libro de los sueños (1996).');
+		addSource:
+			(builder
+				referenceLabeled: '5b'
+				citation: 'Gomez A. El libro de los sueños II parte (1998).').
 	link := builder link: qualityOfProduct to: amountOfProfit.
 	link
 		levelAtOrigin: 1;
@@ -48,20 +52,20 @@ DrmModelBuilder class >> figureTp [
 	link
 		levelAtDestination: 1;
 		addSource: (builder assumption: '').
-	qualityOfdesing:= builder
+	qualityOfdesing := builder
 		factorOnAttribute: 'quality'
 		of: 'design evaluation'.
 	link := builder link: qualityOfProblemDefinition to: qualityOfdesing.
 	link
 		levelAtOrigin: 1;
 		levelAtDestination: 1;
-		addSource: (builder assumption: '').	
-	link := builder link: qualityOfdesing to: qualityOfProduct .
+		addSource: (builder assumption: '').
+	link := builder link: qualityOfdesing to: qualityOfProduct.
 	link
 		levelAtOrigin: 1;
 		levelAtDestination: 1;
 		addSource: (builder assumption: '').
-	numberOfmodi:=	builder
+	numberOfmodi := builder
 		factorOnAttribute: 'number'
 		of: 'modifications'.
 	link := builder link: qualityOfProblemDefinition to: numberOfmodi.
@@ -69,7 +73,7 @@ DrmModelBuilder class >> figureTp [
 		levelAtOrigin: 1;
 		levelAtDestination: -1;
 		addSource: (builder assumption: '').
-	porcentaje:= builder
+	porcentaje := builder
 		factorOnAttribute: '%'
 		of: 'design time spent on modifications'.
 	link := builder link: qualityOfProblemDefinition to: porcentaje.
@@ -77,15 +81,15 @@ DrmModelBuilder class >> figureTp [
 		levelAtOrigin: 1;
 		levelAtDestination: -1;
 		addSource: (builder assumption: '').
-	link := builder link: porcentaje to: timeToMarket .
+	link := builder link: porcentaje to: timeToMarket.
 	link
 		levelAtOrigin: -1;
 		levelAtDestination: -1;
 		addSource: (builder assumption: '').
-	link := builder link: numberOfmodi to: porcentaje .
+	link := builder link: numberOfmodi to: porcentaje.
 	link
 		levelAtOrigin: -1;
 		levelAtDestination: -1;
-		addSource: (builder experience: '').			
-	^builder model
+		addSource: (builder experience: '').
+	^ builder model
 ]

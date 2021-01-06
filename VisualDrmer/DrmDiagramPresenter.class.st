@@ -16,21 +16,27 @@ DrmDiagramPresenter class >> defaultSpec [
 		yourself
 ]
 
-{ #category : #'canvas configuration' }
+{ #category : #'canvas preparation' }
 DrmDiagramPresenter >> addEdgesTo: canvas [
-	| marker |
-	marker := RSShapeFactory arrow.
-	marker size: 10.
-	RSEdgeBuilder line
+	| edgeBuilder edge originShape destinationShape |
+	edgeBuilder := RSEdgeBuilder line
 		withBorderAttachPoint;
 		canvas: canvas;
-		markerEnd: marker;
-		source: model links
-			connectFrom: [ :link | link origin ]
-			to: [ :link | link destination ]
+		markerEnd:
+			(RSShapeFactory arrow
+				size: 10;
+				yourself).
+	model links
+		do: [ :link | 
+			originShape := canvas nodes
+				detect: [ :each | each model == link origin ].
+			destinationShape := canvas nodes
+				detect: [ :each | each model == link destination ].
+			edge := edgeBuilder edgeFrom: originShape to: destinationShape.
+			edge model: link ]
 ]
 
-{ #category : #'canvas configuration' }
+{ #category : #'canvas preparation' }
 DrmDiagramPresenter >> addNodeLabelsTo: aCanvas [
 	| labelBuilder label |
 	labelBuilder := RSMultilineLabelBuilder new.
@@ -45,7 +51,7 @@ DrmDiagramPresenter >> addNodeLabelsTo: aCanvas [
 				stick: label on: aNode ]
 ]
 
-{ #category : #'canvas configuration' }
+{ #category : #'canvas preparation' }
 DrmDiagramPresenter >> addNodesTo: aCanvas [
 	| shapes |
 	shapes := model factors
@@ -54,20 +60,61 @@ DrmDiagramPresenter >> addNodesTo: aCanvas [
 	aCanvas addAll: shapes
 ]
 
-{ #category : #'canvas configuration' }
+{ #category : #'canvas preparation' }
+DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
+
+	aCanvas edges
+		do: [ :edge | 
+			| label citationLabels citationBodies |
+			citationLabels := String new writeStream.
+			citationBodies := String new writeStream.
+			edge model sources
+				do: [ :source | 
+					citationLabels nextPutAll: source citationLabel.
+					citationBodies nextPutAll: source citationBody ]
+				separatedBy: [ citationBodies cr ].
+			label := RSLabel new
+				text: citationLabels contents;
+				yourself.
+			label
+				@
+					(RSMorphicPopup new
+						morphBuilder: [ :labelModel | citationBodies contents asTextMorph ]).
+			aCanvas add: label.
+			RSLocation new
+				middle;
+				center;
+				stick: label on: edge ]
+]
+
+{ #category : #'canvas preparation' }
+DrmDiagramPresenter >> addWightLabelsTo: aCanvas [
+	| label |
+	aCanvas edges
+		do: [ :edge | 
+			label := RSLabel new text: edge model levelAtOrigin printString.
+			aCanvas add: label.
+			RSLocation new
+				middle;
+				right;
+				stick: label on: edge ]
+]
+
+{ #category : #'canvas preparation' }
 DrmDiagramPresenter >> configureCanvas: canvas [
 	model ifNil: [ ^ self ].
 	self
 		addNodesTo: canvas;
 		addEdgesTo: canvas;
-		addNodeLabelsTo: canvas.
+		addNodeLabelsTo: canvas;
+		addSourcesLabelsTo: canvas.
 	self layout: canvas.
 	canvas @ RSCanvasController.
 	canvas nodes when: RSMouseClick do: [ :evt | evt shape inspect ].
 	self configureCanvasMenuFor: canvas
 ]
 
-{ #category : #'canvas configuration' }
+{ #category : #'canvas preparation' }
 DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 	canvas
 		@
@@ -90,11 +137,11 @@ DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 						argument: #() ])
 ]
 
-{ #category : #'canvas configuration' }
+{ #category : #'canvas preparation' }
 DrmDiagramPresenter >> formFor: aFactor [
 	| form |
 	aFactor class == DrmFactor
-		ifTrue: [ form := RSEllipse new.
+		ifTrue: [ form := DrmEllipse new.
 			form
 				border:
 					(aFactor isExternal
@@ -126,7 +173,7 @@ DrmDiagramPresenter >> initializeWindow: window [
 { #category : #layouting }
 DrmDiagramPresenter >> layout: aCanvas [
 	RSForceBasedLayout new
-		charge: -7000;
+		charge: -12000;
 		on: (aCanvas nodes select: [ :each | each model notNil ]).
 	aCanvas zoomToFit
 ]
@@ -165,7 +212,7 @@ DrmDiagramPresenter >> nodeAddedAnnouncement: aDrmNodeAddedAnnouncement [
 	diagram refresh
 ]
 
-{ #category : #'canvas configuration' }
+{ #category : #'canvas preparation' }
 DrmDiagramPresenter >> nodeFor: aFactor [
 
 	| form |
