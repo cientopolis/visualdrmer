@@ -65,28 +65,30 @@ DrmWidget >> createFactorBackground: unFactor [
 ]
 
 { #category : #running }
-DrmWidget >> createLineLabelFor:line [
-	|link percents|
-	link:= line model.
-	percents:=#(0.2 0.5 0.8). 
+DrmWidget >> createLineLabelFor: line [
+	| link percents |
+	link := line model.
+	percents := #(0.2 0.5 0.8).
 	{link originAsString.
-	 link sourcesAsString. 
-	 link destinationAsString.} doWithIndex: [ :string :index | 
-		|label percent|
-		label:= RSLabel new 
-			text: string;
-			yourself.
-		percent:= percents at:index. 
-		canvas add:label. 
-		line when:RSExtentChangedEvent do:[:evt |
-			|a b newPosition vector|
-			a:= line startPoint.
-			b:= line endPoint.
-			vector:= b - a.
-			newPosition:= a + (vector * percent).
-			newPosition:= newPosition + label extent.
-			label position: newPosition ]]	
-	
+	link sourcesAsString.
+	link destinationAsString}
+		doWithIndex: [ :string :index | 
+			| label percent |
+			label := RSLabel new
+				text: string;
+				yourself.
+			percent := percents at: index.
+			canvas add: label.
+			line
+				when: RSExtentChangedEvent
+				do: [ :evt | 
+					| a b newPosition vector |
+					a := line startPoint.
+					b := line endPoint.
+					vector := b - a.
+					newPosition := a + (vector * percent).
+					newPosition := newPosition + label extent.
+					label position: newPosition ] ]
 ]
 
 { #category : #morphic }

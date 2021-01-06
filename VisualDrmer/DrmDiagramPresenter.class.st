@@ -17,10 +17,27 @@ DrmDiagramPresenter class >> defaultSpec [
 ]
 
 { #category : #'canvas configuration' }
+DrmDiagramPresenter >> addEdgesTo: canvas [
+	| marker |
+	marker := RSShapeFactory arrow.
+	marker size: 10.
+	RSEdgeBuilder line
+		attachPoint:
+			(RSBorderAttachPoint new
+				endOffset: 5;
+				yourself);
+		canvas: canvas;
+		markerEnd: marker;
+		source: model links
+			connectFrom: [ :link | link origin ]
+			to: [ :link | link destination ]
+]
+
+{ #category : #'canvas configuration' }
 DrmDiagramPresenter >> addNodesTo: aCanvas [
 	| shapes |
 	shapes := model factors
-		collect: [ :aFactor | self createCompositeRoassalNodeFor: aFactor ]
+		collect: [ :aFactor | self nodeFor: aFactor ]
 		as: RSGroup.
 	aCanvas addAll: shapes
 ]
@@ -29,6 +46,7 @@ DrmDiagramPresenter >> addNodesTo: aCanvas [
 DrmDiagramPresenter >> configureCanvas: canvas [
 	model ifNil: [ ^ self ].
    self addNodesTo: canvas.
+   self addEdgesTo: canvas.
    self layout: canvas.
    canvas @ RSCanvasController.
    canvas nodes when: RSMouseClick do: [ :evt | evt shape inspect ].
@@ -36,29 +54,7 @@ DrmDiagramPresenter >> configureCanvas: canvas [
 ]
 
 { #category : #'canvas configuration' }
-DrmDiagramPresenter >> createCompositeRoassalNodeFor: aFactor [
-	"Inspired on the class comment of RSComposite"
-
-	| form label shape labelBuilder |
-	form := self createFormFor: aFactor.
-	labelBuilder := RSMultilineLabelBuilder new.
-	labelBuilder wrapStrategy: (RSWrapStrategy new wrapMaxWidth: 100).
-	label := labelBuilder shapeFor: aFactor printString.
-	RSLocation new
-		middle;
-		center;
-		move: form on: label.
-	shape := RSComposite new.
-	shape model: aFactor.
-	shape
-		shapes:
-			{form.
-			label}.
-	^ shape @ RSDraggable
-]
-
-{ #category : #'canvas configuration' }
-DrmDiagramPresenter >> createFormFor: aFactor [
+DrmDiagramPresenter >> formFor: aFactor [
 	| form |
 	aFactor class == DrmFactor
 		ifTrue: [ form := RSEllipse new.
@@ -86,7 +82,7 @@ DrmDiagramPresenter >> initializePresenters [
 DrmDiagramPresenter >> layout: aCanvas [
 	RSForceBasedLayout new
 		charge: -700;
-		on: aCanvas shapes.
+		on: aCanvas nodes.
 	aCanvas zoomToFit
 ]
 
@@ -122,6 +118,28 @@ DrmDiagramPresenter >> nodeAddedAnnouncement: aDrmNodeAddedAnnouncement [
 		send: #nodeChangedAnnouncement:
 		to: self.
 	diagram refresh
+]
+
+{ #category : #'canvas configuration' }
+DrmDiagramPresenter >> nodeFor: aFactor [
+	"Inspired on the class comment of RSComposite"
+
+	| form label shape labelBuilder |
+	form := self formFor: aFactor.
+	labelBuilder := RSMultilineLabelBuilder new.
+	labelBuilder wrapStrategy: (RSWrapStrategy new wrapMaxWidth: 100).
+	label := labelBuilder shapeFor: aFactor printString.
+	RSLocation new
+		middle;
+		center;
+		move: form on: label.
+	shape := RSComposite new.
+	shape model: aFactor.
+	shape
+		shapes:
+			{form.
+			label}.
+	^ shape @ RSDraggable
 ]
 
 { #category : #announcements }
