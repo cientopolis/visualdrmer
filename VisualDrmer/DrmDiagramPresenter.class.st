@@ -31,6 +31,21 @@ DrmDiagramPresenter >> addEdgesTo: canvas [
 ]
 
 { #category : #'canvas configuration' }
+DrmDiagramPresenter >> addNodeLabelsTo: aCanvas [
+	| labelBuilder label |
+	labelBuilder := RSMultilineLabelBuilder new.
+	labelBuilder wrapStrategy: (RSWrapStrategy new wrapMaxWidth: 100).
+	aCanvas nodes
+		do: [ :aNode | 
+			label := labelBuilder shapeFor: aNode model printString.
+			aCanvas add: label.
+			RSLocation new
+				middle;
+				center;
+				stick: label on: aNode ]
+]
+
+{ #category : #'canvas configuration' }
 DrmDiagramPresenter >> addNodesTo: aCanvas [
 	| shapes |
 	shapes := model factors
@@ -42,8 +57,10 @@ DrmDiagramPresenter >> addNodesTo: aCanvas [
 { #category : #'canvas configuration' }
 DrmDiagramPresenter >> configureCanvas: canvas [
 	model ifNil: [ ^ self ].
-	self addNodesTo: canvas.
-	self addEdgesTo: canvas.
+	self
+		addNodesTo: canvas;
+		addEdgesTo: canvas;
+		addNodeLabelsTo: canvas.
 	self layout: canvas.
 	canvas @ RSCanvasController.
 	canvas nodes when: RSMouseClick do: [ :evt | evt shape inspect ].
@@ -110,7 +127,7 @@ DrmDiagramPresenter >> initializeWindow: window [
 DrmDiagramPresenter >> layout: aCanvas [
 	RSForceBasedLayout new
 		charge: -7000;
-		on: aCanvas nodes.
+		on: (aCanvas nodes select: [ :each | each model notNil ]).
 	aCanvas zoomToFit
 ]
 
