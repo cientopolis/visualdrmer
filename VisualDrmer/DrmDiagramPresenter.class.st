@@ -22,10 +22,7 @@ DrmDiagramPresenter >> addEdgesTo: canvas [
 	marker := RSShapeFactory arrow.
 	marker size: 10.
 	RSEdgeBuilder line
-		attachPoint:
-			(RSBorderAttachPoint new
-				endOffset: 5;
-				yourself);
+		withBorderAttachPoint;
 		canvas: canvas;
 		markerEnd: marker;
 		source: model links
@@ -45,12 +42,35 @@ DrmDiagramPresenter >> addNodesTo: aCanvas [
 { #category : #'canvas configuration' }
 DrmDiagramPresenter >> configureCanvas: canvas [
 	model ifNil: [ ^ self ].
-   self addNodesTo: canvas.
-   self addEdgesTo: canvas.
-   self layout: canvas.
-   canvas @ RSCanvasController.
-   canvas nodes when: RSMouseClick do: [ :evt | evt shape inspect ].
- 
+	self addNodesTo: canvas.
+	self addEdgesTo: canvas.
+	self layout: canvas.
+	canvas @ RSCanvasController.
+	canvas nodes when: RSMouseClick do: [ :evt | evt shape inspect ].
+	self configureCanvasMenuFor: canvas
+]
+
+{ #category : #'canvas configuration' }
+DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
+	canvas
+		@
+			(RSMenuActivable new
+				menuDo: [ :menu :theCanvas | 
+					menu
+						add: 'Layout'
+						target: self
+						selector: #layout:
+						argument: theCanvas.
+					menu
+						add: 'Zoom to fit'
+						target: theCanvas
+						selector: #zoomToFit
+						argument: #().
+					menu
+						add: 'Inspect'
+						target: theCanvas
+						selector: #inspect
+						argument: #() ])
 ]
 
 { #category : #'canvas configuration' }
@@ -74,14 +94,22 @@ DrmDiagramPresenter >> formFor: aFactor [
 
 { #category : #initialization }
 DrmDiagramPresenter >> initializePresenters [
-	diagram := self instantiate: SpRoassalPresenter .
+	diagram := self instantiate: SpRoassalPresenter.
 	diagram script: [ :canvas | self configureCanvas: canvas ].
+	
+]
+
+{ #category : #initialization }
+DrmDiagramPresenter >> initializeWindow: window [
+	window
+		title: 'Test';
+		initialExtent: 1200 @ 750
 ]
 
 { #category : #layouting }
 DrmDiagramPresenter >> layout: aCanvas [
 	RSForceBasedLayout new
-		charge: -700;
+		charge: -7000;
 		on: aCanvas nodes.
 	aCanvas zoomToFit
 ]
@@ -122,27 +150,14 @@ DrmDiagramPresenter >> nodeAddedAnnouncement: aDrmNodeAddedAnnouncement [
 
 { #category : #'canvas configuration' }
 DrmDiagramPresenter >> nodeFor: aFactor [
-	"Inspired on the class comment of RSComposite"
 
-	| form label shape labelBuilder |
+	| form |
 	form := self formFor: aFactor.
-	labelBuilder := RSMultilineLabelBuilder new.
-	labelBuilder wrapStrategy: (RSWrapStrategy new wrapMaxWidth: 100).
-	label := labelBuilder shapeFor: aFactor printString.
-	RSLocation new
-		middle;
-		center;
-		move: form on: label.
-	shape := RSComposite new.
-	shape model: aFactor.
-	shape
+	form model: aFactor.
+	form
 		when: RSPositionChangedEvent
-		do: [ shape model propertiesDictionary at: #position put: shape position ].
-	shape
-		shapes:
-			{form.
-			label}.
-	^ shape @ RSDraggable
+		do: [ form model propertiesDictionary at: #position put: form position ].
+	^ form @ RSDraggable
 ]
 
 { #category : #announcements }
