@@ -67,6 +67,13 @@ DrmDiagramPresenter >> addLevelLabelsTo: aCanvas [
 					destinationLabel position: endPoint - (vector * 0.125) ] ]
 ]
 
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> addMenuesTo: canvas [
+	self
+		configureCanvasMenuFor: canvas;
+		configureNodeMenuesFor: canvas
+]
+
 { #category : #accessing }
 DrmDiagramPresenter >> addNodeBlock [
 	^ addNodeBlock
@@ -134,22 +141,6 @@ DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
 ]
 
 { #category : #'private-drawing' }
-DrmDiagramPresenter >> configureCanvas: canvas [
-	model ifNil: [ ^ self ].
-	self
-		addNodesTo: canvas;
-		addEdgesTo: canvas;
-		addNodeLabelsTo: canvas;
-		addLevelLabelsTo: canvas;
-		addSourcesLabelsTo: canvas.
-	self layout: canvas.
-	canvas @ RSCanvasController.
-	self
-		configureCanvasMenuFor: canvas;
-		configureNodeMenuesFor: canvas
-]
-
-{ #category : #'private-drawing' }
 DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 	canvas
 		@
@@ -184,6 +175,19 @@ DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
 						target: self
 						selector: #remove:
 						argument: theFactor ])
+]
+
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> drawOn: canvas [
+	model ifNil: [ ^ self ].
+	self
+		addNodesTo: canvas;
+		addEdgesTo: canvas;
+		addNodeLabelsTo: canvas;
+		addLevelLabelsTo: canvas;
+		addSourcesLabelsTo: canvas.
+	canvas @ RSCanvasController.
+
 ]
 
 { #category : #'private-callbacks' }
@@ -224,8 +228,10 @@ DrmDiagramPresenter >> formForNode: aDrmNode [
 { #category : #initialization }
 DrmDiagramPresenter >> initializePresenters [
 	diagram := self instantiate: SpRoassalPresenter.
-	diagram script: [ :canvas | self configureCanvas: canvas ].
-	
+	diagram
+		script: [ :canvas | 
+			self drawOn: canvas.
+			self addMenuesTo: canvas ]
 ]
 
 { #category : #initialization }
@@ -297,10 +303,12 @@ DrmDiagramPresenter >> nodeAddedAnnouncement: aDrmNodeAddedAnnouncement [
 
 { #category : #'private-drawing' }
 DrmDiagramPresenter >> nodeFor: aFactor [
-
 	| form |
 	form := self formForNode: aFactor.
 	form model: aFactor.
+	aFactor propertiesDictionary
+		at: #position
+		ifPresent: [ :position | form position: position ].
 	form
 		when: RSPositionChangedEvent
 		do: [ form model propertiesDictionary at: #position put: form position ].
