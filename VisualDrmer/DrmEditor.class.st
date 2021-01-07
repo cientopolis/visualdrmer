@@ -29,7 +29,12 @@ DrmEditor class >> title [
 
 { #category : #'private callbacks' }
 DrmEditor >> addNode [
-	UIManager default alert: 'Not finished yet'
+	| editor |
+	editor := FactorEditor new
+		model: DrmFactor new;
+		yourself.
+	editor openModalWithSpec.
+   editor model ifNotNil: [ :newNode | model addNode: newNode ] 
 ]
 
 { #category : #initialization }
@@ -84,7 +89,6 @@ DrmEditor >> initializePresenters [
 { #category : #initialization }
 DrmEditor >> initializeWindow: window [
 	window
-		title: 'Drmer';
 		initialExtent: 1200 @ 750
 ]
 
