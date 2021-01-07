@@ -52,18 +52,25 @@ DrmEditor >> initializePresenters [
 ]
 
 { #category : #initialization }
+DrmEditor >> initializeWindow: window [
+	window
+		title: 'Drmer';
+		initialExtent: 1200 @ 750
+]
+
+{ #category : #initialization }
 DrmEditor >> roassalTab [
 	^ SpNotebookPage
 		title: 'Diagram'
 		icon: (self iconNamed: #objects)
-		provider: [ self newMorph
-				morph: self roassalWidget;
-				yourself ]
+		provider: [ | presenter |
+			presenter := self instantiate: DrmDiagramPresenter.
+			presenter model: model ]
 ]
 
 { #category : #private }
 DrmEditor >> roassalWidget [
-	^ DrmWidget new
+	^ DrmDiagramPresenter new
 		model: model;
 		createMorph
 ]

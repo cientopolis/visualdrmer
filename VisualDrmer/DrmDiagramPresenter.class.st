@@ -37,6 +37,28 @@ DrmDiagramPresenter >> addEdgesTo: canvas [
 ]
 
 { #category : #'canvas preparation' }
+DrmDiagramPresenter >> addLevelLabelsTo: aCanvas [
+	aCanvas edges
+		do: [ :edge | 
+			| originLabel destinationLabel |
+			originLabel := self labelForLevel: edge model levelAtOrigin.
+			destinationLabel := self
+				labelForLevel: edge model levelAtDestination.
+			aCanvas
+				add: originLabel;
+				add: destinationLabel.
+			edge
+				when: RSExtentChangedEvent
+				do: [ :evt | 
+					| startPoint endPoint vector |
+					startPoint := edge startPoint.
+					endPoint := edge endPoint.
+					vector := endPoint - startPoint.
+					originLabel position: startPoint + (vector * 0.125).
+					destinationLabel position: endPoint - (vector * 0.125) ] ]
+]
+
+{ #category : #'canvas preparation' }
 DrmDiagramPresenter >> addNodeLabelsTo: aCanvas [
 	| labelBuilder label |
 	labelBuilder := RSMultilineLabelBuilder new.
@@ -62,7 +84,7 @@ DrmDiagramPresenter >> addNodesTo: aCanvas [
 
 { #category : #'canvas preparation' }
 DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
-
+	| composite |
 	aCanvas edges
 		do: [ :edge | 
 			| label citationLabels citationBodies |
@@ -80,24 +102,16 @@ DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
 				@
 					(RSMorphicPopup new
 						morphBuilder: [ :labelModel | citationBodies contents asTextMorph ]).
-			aCanvas add: label.
+			composite := RSComposite new
+				shapes: {label};
+				padding: 2;
+				color: Color white;
+				yourself.
+			aCanvas add: composite.
 			RSLocation new
 				middle;
 				center;
-				stick: label on: edge ]
-]
-
-{ #category : #'canvas preparation' }
-DrmDiagramPresenter >> addWightLabelsTo: aCanvas [
-	| label |
-	aCanvas edges
-		do: [ :edge | 
-			label := RSLabel new text: edge model levelAtOrigin printString.
-			aCanvas add: label.
-			RSLocation new
-				middle;
-				right;
-				stick: label on: edge ]
+				stick: composite on: edge ]
 ]
 
 { #category : #'canvas preparation' }
@@ -107,6 +121,7 @@ DrmDiagramPresenter >> configureCanvas: canvas [
 		addNodesTo: canvas;
 		addEdgesTo: canvas;
 		addNodeLabelsTo: canvas;
+		addLevelLabelsTo: canvas;
 		addSourcesLabelsTo: canvas.
 	self layout: canvas.
 	canvas @ RSCanvasController.
@@ -138,16 +153,16 @@ DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 ]
 
 { #category : #'canvas preparation' }
-DrmDiagramPresenter >> formFor: aFactor [
+DrmDiagramPresenter >> formForNode: aDrmNode [
 	| form |
-	aFactor class == DrmFactor
+	aDrmNode class == DrmFactor
 		ifTrue: [ form := DrmEllipse new.
 			form
 				border:
-					(aFactor isExternal
+					(aDrmNode isExternal
 						ifTrue: [ RSBorder new dashArray: #(4) ]
 						ifFalse: [ RSBorder new ]) ].
-	aFactor class == DrmSupport
+	aDrmNode class == DrmSupport
 		ifTrue: [ form := RSShapeFactory hexagon.
 			form border: RSBorder new ].
 	form
@@ -170,10 +185,28 @@ DrmDiagramPresenter >> initializeWindow: window [
 		initialExtent: 1200 @ 750
 ]
 
+{ #category : #'canvas preparation' }
+DrmDiagramPresenter >> labelForLevel: aValue [
+	| label |
+	label := RSLabel new
+		text:
+			(aValue < 0
+				ifTrue: [ '-' ]
+				ifFalse: [ aValue = 0
+						ifTrue: [ '?' ]
+						ifFalse: [ '+' ] ]);
+		yourself.
+	^ RSComposite new
+		shapes: {label};
+		padding: 2;
+		color: Color white;
+		yourself
+]
+
 { #category : #layouting }
 DrmDiagramPresenter >> layout: aCanvas [
 	RSForceBasedLayout new
-		charge: -12000;
+		charge: -10000;
 		on: (aCanvas nodes select: [ :each | each model notNil ]).
 	aCanvas zoomToFit
 ]
@@ -216,7 +249,7 @@ DrmDiagramPresenter >> nodeAddedAnnouncement: aDrmNodeAddedAnnouncement [
 DrmDiagramPresenter >> nodeFor: aFactor [
 
 	| form |
-	form := self formFor: aFactor.
+	form := self formForNode: aFactor.
 	form model: aFactor.
 	form
 		when: RSPositionChangedEvent
