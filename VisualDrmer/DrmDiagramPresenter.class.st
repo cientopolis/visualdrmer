@@ -3,7 +3,10 @@ Class {
 	#superclass : #SpPresenter,
 	#instVars : [
 		'model',
-		'diagram'
+		'diagram',
+		'addNodeBlock',
+		'removeNodeBlock',
+		'editNodeBlock'
 	],
 	#category : #'VisualDrmer-RoassalWidget'
 }
@@ -16,7 +19,7 @@ DrmDiagramPresenter class >> defaultSpec [
 		yourself
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> addEdgesTo: canvas [
 	| edgeBuilder edge originShape destinationShape |
 	edgeBuilder := RSEdgeBuilder line
@@ -36,7 +39,13 @@ DrmDiagramPresenter >> addEdgesTo: canvas [
 			edge model: link ]
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-callbacks' }
+DrmDiagramPresenter >> addFactor [
+	addNodeBlock ifNil: [ ^ self ].
+	addNodeBlock value
+]
+
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> addLevelLabelsTo: aCanvas [
 	aCanvas edges
 		do: [ :edge | 
@@ -58,7 +67,17 @@ DrmDiagramPresenter >> addLevelLabelsTo: aCanvas [
 					destinationLabel position: endPoint - (vector * 0.125) ] ]
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #accessing }
+DrmDiagramPresenter >> addNodeBlock [
+	^ addNodeBlock
+]
+
+{ #category : #accessing }
+DrmDiagramPresenter >> addNodeBlock: anObject [
+	addNodeBlock := anObject
+]
+
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> addNodeLabelsTo: aCanvas [
 	| labelBuilder label |
 	labelBuilder := RSMultilineLabelBuilder new.
@@ -73,7 +92,7 @@ DrmDiagramPresenter >> addNodeLabelsTo: aCanvas [
 				stick: label on: aNode ]
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> addNodesTo: aCanvas [
 	| shapes |
 	shapes := model factors
@@ -82,7 +101,7 @@ DrmDiagramPresenter >> addNodesTo: aCanvas [
 	aCanvas addAll: shapes
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
 	| composite |
 	aCanvas edges
@@ -114,7 +133,7 @@ DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
 				stick: composite on: edge ]
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> configureCanvas: canvas [
 	model ifNil: [ ^ self ].
 	self
@@ -130,7 +149,7 @@ DrmDiagramPresenter >> configureCanvas: canvas [
 		configureNodeMenuesFor: canvas
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 	canvas
 		@
@@ -146,14 +165,15 @@ DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 						target: theCanvas
 						selector: #zoomToFit
 						argument: #().
+					menu addLine.
 					menu
-						add: 'Inspect'
-						target: theCanvas
-						selector: #inspect
+						add: 'Add factor'
+						target: self
+						selector: #addFactor
 						argument: #() ])
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
 	(canvas nodes select: [ :each | each model notNil ])
 		@
@@ -166,7 +186,23 @@ DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
 						argument: theFactor ])
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-callbacks' }
+DrmDiagramPresenter >> editNode: aNodeShape [
+	editNodeBlock ifNil: [ ^ self ].
+	editNodeBlock value: aNodeShape model
+]
+
+{ #category : #accessing }
+DrmDiagramPresenter >> editNodeBlock [
+	^ editNodeBlock
+]
+
+{ #category : #accessing }
+DrmDiagramPresenter >> editNodeBlock: anObject [
+	editNodeBlock := anObject
+]
+
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> formForNode: aDrmNode [
 	| form |
 	aDrmNode class == DrmFactor
@@ -199,7 +235,7 @@ DrmDiagramPresenter >> initializeWindow: window [
 		initialExtent: 1200 @ 750
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> labelForLevel: aValue [
 	| label |
 	label := RSLabel new
@@ -217,7 +253,7 @@ DrmDiagramPresenter >> labelForLevel: aValue [
 		yourself
 ]
 
-{ #category : #layouting }
+{ #category : #'private-layouting' }
 DrmDiagramPresenter >> layout: aCanvas [
 	RSForceBasedLayout new
 		charge: -10000;
@@ -225,7 +261,7 @@ DrmDiagramPresenter >> layout: aCanvas [
 	aCanvas zoomToFit
 ]
 
-{ #category : #announcements }
+{ #category : #'private-updating' }
 DrmDiagramPresenter >> linkAddedAnnouncement: aDrmLinkAddedAnnouncement [
 	aDrmLinkAddedAnnouncement subject announcer
 		when: aDrmLinkAddedAnnouncement
@@ -234,7 +270,7 @@ DrmDiagramPresenter >> linkAddedAnnouncement: aDrmLinkAddedAnnouncement [
 	diagram refresh. 
 ]
 
-{ #category : #announcements }
+{ #category : #'private-updating' }
 DrmDiagramPresenter >> linkRemovedAnnouncement: aDrmLinkRemovedAnnouncement [
 	diagram refresh. 
 ]
@@ -250,7 +286,7 @@ DrmDiagramPresenter >> model: anObject [
 	self subscribeToModelAnnouncements
 ]
 
-{ #category : #announcements }
+{ #category : #'private-updating' }
 DrmDiagramPresenter >> nodeAddedAnnouncement: aDrmNodeAddedAnnouncement [
 	aDrmNodeAddedAnnouncement subject announcer
 		when: DrmNodeChangedAnnouncement
@@ -259,7 +295,7 @@ DrmDiagramPresenter >> nodeAddedAnnouncement: aDrmNodeAddedAnnouncement [
 	diagram refresh
 ]
 
-{ #category : #'canvas preparation' }
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> nodeFor: aFactor [
 
 	| form |
@@ -271,14 +307,25 @@ DrmDiagramPresenter >> nodeFor: aFactor [
 	^ form @ RSDraggable
 ]
 
-{ #category : #announcements }
+{ #category : #'private-updating' }
 DrmDiagramPresenter >> nodeRemovedAnnouncement: aDrmNodeRemovedAnnouncement [
 	diagram refresh
 ]
 
-{ #category : #callbacks }
+{ #category : #'private-callbacks' }
 DrmDiagramPresenter >> remove: aNodeShape [
-	model removeNode: aNodeShape model
+	removeNodeBlock ifNil: [ ^ self ].
+	removeNodeBlock value: aNodeShape model
+]
+
+{ #category : #accessing }
+DrmDiagramPresenter >> removeNodeBlock [
+	^ removeNodeBlock
+]
+
+{ #category : #accessing }
+DrmDiagramPresenter >> removeNodeBlock: anObject [
+	removeNodeBlock := anObject
 ]
 
 { #category : #running }
@@ -286,7 +333,7 @@ DrmDiagramPresenter >> run [
 	<script: 'self new model: (DrmModelBuilder figureTp); openWithSpec'>
 ]
 
-{ #category : #announcements }
+{ #category : #'private-updating' }
 DrmDiagramPresenter >> subscribeToModelAnnouncements [
 	model announcer
 		when: DrmNodeAddedAnnouncement
