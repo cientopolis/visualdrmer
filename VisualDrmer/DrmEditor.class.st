@@ -3,6 +3,7 @@ Class {
 	#superclass : #SpPresenter,
 	#instVars : [
 		'#tabManager',
+		'#diagramPresenter',
 		'#model => SpObservableSlot'
 	],
 	#category : #'VisualDrmer-SpecUI'
@@ -26,14 +27,42 @@ DrmEditor class >> title [
 	^ 'Dremer'
 ]
 
+{ #category : #'private callbacks' }
+DrmEditor >> addNode [
+	UIManager default alert: 'Not finished yet'
+]
+
 { #category : #initialization }
-DrmEditor >> formTab [
+DrmEditor >> connectPresenters [
+	diagramPresenter
+		addNodeBlock: [ self addNode ];
+		editNodeBlock: [ :node | self editNode: node ];
+		removeNodeBlock: [ :node | self removeNode: node ]
+]
+
+{ #category : #initialization }
+DrmEditor >> detailsTab [
 	^ SpNotebookPage
 		title: 'Details'
 		icon: (self iconNamed: #glamorousBrowse)
 		provider: [ self newText
 				text: 'Formulario';
 				yourself ]
+]
+
+{ #category : #initialization }
+DrmEditor >> diagramTab [
+	^ SpNotebookPage
+		title: 'Diagram'
+		icon: (self iconNamed: #objects)
+		provider: [ diagramPresenter
+				model: model;
+				yourself ]
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> editNode: aNode [
+	UIManager default alert: 'Not finished yet'
 ]
 
 { #category : #initialization }
@@ -46,9 +75,10 @@ DrmEditor >> initialize [
 { #category : #initialization }
 DrmEditor >> initializePresenters [
 	tabManager := self newNotebook.
+	diagramPresenter := DrmDiagramPresenter new.
 	tabManager
-		addPage: self roassalTab;
-		addPage: self formTab
+		addPage: self diagramTab;
+		addPage: self detailsTab
 ]
 
 { #category : #initialization }
@@ -58,14 +88,12 @@ DrmEditor >> initializeWindow: window [
 		initialExtent: 1200 @ 750
 ]
 
-{ #category : #initialization }
-DrmEditor >> roassalTab [
-	^ SpNotebookPage
-		title: 'Diagram'
-		icon: (self iconNamed: #objects)
-		provider: [ | presenter |
-			presenter := self instantiate: DrmDiagramPresenter.
-			presenter model: model ]
+{ #category : #'private callbacks' }
+DrmEditor >> removeNode: aNode [
+	(UIManager default
+		confirm: 'Are you sure you want to remove this node? This action cannot be undone.')
+		ifFalse: [ ^ self ].
+	model removeNode: aNode
 ]
 
 { #category : #private }
