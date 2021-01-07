@@ -171,10 +171,14 @@ DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
 			(RSMenuActivable new
 				menuDo: [ :menu :theFactor | 
 					menu
+						add: 'Edit'
+							target: self
+							selector: #editNode:
+							argument: theFactor;
 						add: 'Remove'
-						target: self
-						selector: #remove:
-						argument: theFactor ])
+							target: self
+							selector: #remove:
+							argument: theFactor ])
 ]
 
 { #category : #'private-drawing' }
@@ -269,16 +273,8 @@ DrmDiagramPresenter >> layout: aCanvas [
 
 { #category : #'private-updating' }
 DrmDiagramPresenter >> linkAddedAnnouncement: aDrmLinkAddedAnnouncement [
-	aDrmLinkAddedAnnouncement subject announcer
-		when: aDrmLinkAddedAnnouncement
-		send: #linkChangedAnnouncement:
-		to: self.
-	diagram refresh. 
-]
-
-{ #category : #'private-updating' }
-DrmDiagramPresenter >> linkRemovedAnnouncement: aDrmLinkRemovedAnnouncement [
-	diagram refresh. 
+	self subscribeToLinkAnnouncementsOn: aDrmLinkAddedAnnouncement subject.
+	diagram refresh.
 ]
 
 { #category : #accessing }
@@ -289,16 +285,14 @@ DrmDiagramPresenter >> model [
 { #category : #accessing }
 DrmDiagramPresenter >> model: anObject [
 	model := anObject.
+	model inspect. 
 	self subscribeToModelAnnouncements
 ]
 
 { #category : #'private-updating' }
-DrmDiagramPresenter >> nodeAddedAnnouncement: aDrmNodeAddedAnnouncement [
-	aDrmNodeAddedAnnouncement subject announcer
-		when: DrmNodeChangedAnnouncement
-		send: #nodeChangedAnnouncement:
-		to: self.
-	diagram refresh
+DrmDiagramPresenter >> nodeAddedAnnouncement: aNodeAddedAnnouncement [
+	self subscribeToNodeAnnouncementsOn: aNodeAddedAnnouncement subject.
+	diagram refresh. 
 ]
 
 { #category : #'private-drawing' }
@@ -313,11 +307,6 @@ DrmDiagramPresenter >> nodeFor: aFactor [
 		when: RSPositionChangedEvent
 		do: [ form model propertiesDictionary at: #position put: form position ].
 	^ form @ RSDraggable
-]
-
-{ #category : #'private-updating' }
-DrmDiagramPresenter >> nodeRemovedAnnouncement: aDrmNodeRemovedAnnouncement [
-	diagram refresh
 ]
 
 { #category : #'private-callbacks' }
@@ -342,18 +331,28 @@ DrmDiagramPresenter >> run [
 ]
 
 { #category : #'private-updating' }
+DrmDiagramPresenter >> subscribeToLinkAnnouncementsOn: aLink [
+	aLink announcer when: DrmLinkChangedAnnouncement send: #refresh to: diagram
+]
+
+{ #category : #'private-updating' }
 DrmDiagramPresenter >> subscribeToModelAnnouncements [
 	model announcer
 		when: DrmNodeAddedAnnouncement
 			send: #nodeAddedAnnouncement:
 			to: self;
+		when: DrmNodeRemovedAnnouncement send: #refresh to: diagram;
 		when: DrmLinkAddedAnnouncement
 			send: #linkAddedAnnouncement:
 			to: self;
-		when: DrmNodeRemovedAnnouncement
-			send: #nodeRemovedAnnouncement:
-			to: self;
-		when: DrmLinkRemovedAnnouncement
-			send: #linkRemovedAnnouncement:
-			to: self
+		when: DrmLinkRemovedAnnouncement send: #refresh to: diagram.
+	model nodes
+		do: [ :aNode | self subscribeToNodeAnnouncementsOn: aNode ].
+	model links
+		do: [ :aLink | self subscribeToLinkAnnouncementsOn: aLink ]
+]
+
+{ #category : #'private-updating' }
+DrmDiagramPresenter >> subscribeToNodeAnnouncementsOn: aNode [
+	aNode announcer when: DrmNodeChangedAnnouncement send: #refresh to: diagram
 ]

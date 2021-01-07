@@ -67,7 +67,11 @@ DrmEditor >> diagramTab [
 
 { #category : #'private callbacks' }
 DrmEditor >> editNode: aNode [
-	UIManager default alert: 'Not finished yet'
+	| editor |
+	editor := FactorEditor new
+		model: aNode;
+		yourself.
+	editor openModalWithSpec
 ]
 
 { #category : #initialization }

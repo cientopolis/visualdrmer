@@ -45,25 +45,44 @@ FactorEditor >> initializeDialogWindow: aDialog [
 { #category : #initialization }
 FactorEditor >> initializePresenters [
 	attributeTextInput := self newTextInput
-		autoAccept;
+		autoAccept: true;
 		yourself.
 	elementTextInput := self newTextInput
-		autoAccept;
+		autoAccept: true;
 		yourself.
 	isExternalCheckbox := self newCheckBox.
+	self updateWidgetsFromModel.
+	self focusOrder
+		add: attributeTextInput;
+		add: elementTextInput;
+		add: isExternalCheckbox
+]
 
+{ #category : #callbacks }
+FactorEditor >> model: aModel [
+	"This makes no sense; the whole purpose of using my superclass was to get notified when my model changes but modelChanges is not triggered!"
+
+	super model: aModel.
+	self updateWidgetsFromModel
 ]
 
 { #category : #callbacks }
 FactorEditor >> updateModel [
 	self model
-		attribute: attributeTextInput text;
-		element: elementTextInput text;
+		attribute:
+			(attributeTextInput
+				accept;
+				text);
+		element:
+			(elementTextInput
+				accept;
+				text);
 		isExternal: isExternalCheckbox state
 ]
 
 { #category : #initialization }
 FactorEditor >> updateWidgetsFromModel [
+	self model ifNil: [ ^ self ].
 	attributeTextInput text: self model attribute.
 	elementTextInput text: self model element.
 	isExternalCheckbox state: self model isExternal
