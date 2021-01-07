@@ -125,8 +125,9 @@ DrmDiagramPresenter >> configureCanvas: canvas [
 		addSourcesLabelsTo: canvas.
 	self layout: canvas.
 	canvas @ RSCanvasController.
-	canvas nodes when: RSMouseClick do: [ :evt | evt shape inspect ].
-	self configureCanvasMenuFor: canvas
+	self
+		configureCanvasMenuFor: canvas;
+		configureNodeMenuesFor: canvas
 ]
 
 { #category : #'canvas preparation' }
@@ -150,6 +151,19 @@ DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 						target: theCanvas
 						selector: #inspect
 						argument: #() ])
+]
+
+{ #category : #'canvas preparation' }
+DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
+	(canvas nodes select: [ :each | each model notNil ])
+		@
+			(RSMenuActivable new
+				menuDo: [ :menu :theFactor | 
+					menu
+						add: 'Remove'
+						target: self
+						selector: #remove:
+						argument: theFactor ])
 ]
 
 { #category : #'canvas preparation' }
@@ -260,6 +274,11 @@ DrmDiagramPresenter >> nodeFor: aFactor [
 { #category : #announcements }
 DrmDiagramPresenter >> nodeRemovedAnnouncement: aDrmNodeRemovedAnnouncement [
 	diagram refresh
+]
+
+{ #category : #callbacks }
+DrmDiagramPresenter >> remove: aNodeShape [
+	model removeNode: aNodeShape model
 ]
 
 { #category : #running }
