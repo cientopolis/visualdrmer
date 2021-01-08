@@ -122,7 +122,7 @@ DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
 					citationBodies nextPutAll: source citationBody ]
 				separatedBy: [ citationBodies cr ].
 			label := RSLabel new
-				text: citationLabels contents;
+				text: (citationLabels contents ifEmpty: ['?']);
 				yourself.
 			label
 				@
