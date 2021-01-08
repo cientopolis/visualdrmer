@@ -17,6 +17,12 @@ DrmEditor class >> defaultSpec [
 ]
 
 { #category : #examples }
+DrmEditor class >> menuCommandOn: aBuilder [
+	<worldMenu>
+	(aBuilder item: 'DRM editor') action: [ self new openWithSpec ]
+]
+
+{ #category : #examples }
 DrmEditor class >> open [
 	<example>
 	^ self new openWithSpec
