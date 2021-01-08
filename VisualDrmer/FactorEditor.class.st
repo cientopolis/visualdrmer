@@ -11,7 +11,37 @@ Class {
 
 { #category : #specs }
 FactorEditor class >> defaultSpec [
-	^ SpGridLayout new
+	^ SpBoxLayout newVertical
+		add:
+			(SpBoxLayout newHorizontal
+				add: 'Attribute'
+					withConstraints: [ :constraints | constraints width: 80 ];
+				add: #attributeTextInput
+					expand: true
+					fill: true
+					padding: 0;
+				yourself)
+			expand: false;
+		add:
+			(SpBoxLayout newHorizontal
+					add: 'Element'
+						withConstraints: [ :constraints | constraints width: 80 ];
+					add: #elementTextInput
+						expand: true
+						fill: true
+						padding: 0;
+					yourself)
+			expand: false
+			fill: false
+			padding: 5;
+		add:
+			(SpBoxLayout newHorizontal
+				add: 'isExternal'
+					withConstraints: [ :constraints | constraints width: 80 ];
+				add: #isExternalCheckbox expand: false;
+				yourself)
+			expand: false;
+		" SpGridLayout new
 	   beRowHomogeneous ;
 		add: 'Attribute' at: 1 @ 1;
 		add: #attributeTextInput at: 2 @ 1;
@@ -19,7 +49,8 @@ FactorEditor class >> defaultSpec [
 		add: #elementTextInput at: 2 @ 2;
 		add: 'Is external' at: 1 @ 3;
 		add: #isExternalCheckbox at: 2 @ 3;
-		yourself
+		yourself"
+			yourself
 ]
 
 { #category : #examples }
@@ -28,15 +59,12 @@ FactorEditor class >> open [
 	^ self new openModalWithSpec
 ]
 
-{ #category : #examples }
-FactorEditor class >> title [
-	^ 'Editing a node'
-]
-
 { #category : #initialization }
 FactorEditor >> initializeDialogWindow: aDialog [
 	super initializeDialogWindow: aDialog.
 	aDialog
+		initialExtent: 600 @ 160;
+		title: 'Editing a factor';
 		closeOnBackdropClick: true;
 		okAction: [ :presenter | self updateModel ];
 		cancelAction: [ :presenter | self model: nil ]

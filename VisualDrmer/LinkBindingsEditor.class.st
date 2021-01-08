@@ -68,8 +68,7 @@ LinkBindingsEditor >> initializeDialogWindow: aDialog [
 	super initializeDialogWindow: aDialog.
 	aDialog
 		initialExtent: 600 @ 160;
-		title: 'Editing the bindings of a link'.
-	aDialog
+		title: 'Editing the bindings of a link';
 		closeOnBackdropClick: true;
 		okAction: [ :presenter | self updateModel ];
 		cancelAction: [ :presenter | self model: nil ]
