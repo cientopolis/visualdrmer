@@ -76,6 +76,11 @@ DrmDiagramPresenter >> addLink [
 	addLinkBlock value
 ]
 
+{ #category : #accessing }
+DrmDiagramPresenter >> addLinkBlock: anObject [
+	addLinkBlock := anObject
+]
+
 { #category : #'private-drawing' }
 DrmDiagramPresenter >> addMenuesTo: canvas [
 	self
@@ -227,6 +232,11 @@ DrmDiagramPresenter >> editLink: aDrmLink [
 	editNodeBlock value: aDrmLink
 ]
 
+{ #category : #accessing }
+DrmDiagramPresenter >> editLinkBlock: anObject [
+	editLinkBlock := anObject
+]
+
 { #category : #'private-callbacks' }
 DrmDiagramPresenter >> editNode: aDrmNode [
 	editNodeBlock ifNil: [ ^ self ].
@@ -345,6 +355,11 @@ DrmDiagramPresenter >> nodeFor: aFactor [
 DrmDiagramPresenter >> removeLink: aDrmLink [
 	removeLinkBlock ifNil: [ ^ self ].
 	removeLinkBlock value: aDrmLink
+]
+
+{ #category : #accessing }
+DrmDiagramPresenter >> removeLinkBlock: anObject [
+	removeLinkBlock := anObject
 ]
 
 { #category : #'private-callbacks' }

@@ -42,7 +42,10 @@ DrmEditor >> connectPresenters [
 	diagramPresenter
 		addNodeBlock: [ self addNode ];
 		editNodeBlock: [ :node | self editNode: node ];
-		removeNodeBlock: [ :node | self removeNode: node ]
+		removeNodeBlock: [ :node | self removeNode: node ];
+		addLinkBlock: [ self addLink ];
+		editLinkBlock: [ :link | self editLink: link ];
+		removeLinkBlock: [ :link | self removeLink: link ]
 ]
 
 { #category : #initialization }
@@ -94,6 +97,15 @@ DrmEditor >> initializePresenters [
 DrmEditor >> initializeWindow: window [
 	window
 		initialExtent: 1200 @ 750
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> removeLink: aLink [
+	(UIManager default
+		confirm:
+			'Are you sure you want to remove this link? This action cannot be undone.')
+		ifFalse: [ ^ self ].
+	model removeLink: aLink
 ]
 
 { #category : #'private callbacks' }
