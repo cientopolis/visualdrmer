@@ -182,6 +182,17 @@ DrmEditor >> initializeWindow: window [
 		initialExtent: 1200 @ 750
 ]
 
+{ #category : #accessing }
+DrmEditor >> model: aDrmModel [
+	model := aDrmModel.
+	diagramPresenter model: aDrmModel
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> newModel [
+	self model: DrmModel new
+]
+
 { #category : #'private callbacks' }
 DrmEditor >> removeLink: aLink [
 	(UIManager default
