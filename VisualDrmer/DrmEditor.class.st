@@ -78,7 +78,7 @@ DrmEditor >> buildToolBar [
 				label: 'Save';
 				icon: (self iconNamed: #smallSave);
 				help: 'Save';
-				action: [ self inform: 'Save to file' ];
+				action: [ self save ];
 				yourself);
 		addItem:
 			(SpToolBarButton new
@@ -191,7 +191,8 @@ DrmEditor >> model: aDrmModel [
 
 { #category : #'private callbacks' }
 DrmEditor >> newModel [
-	self model: DrmModel new
+	self model: DrmModel new.
+	fileReference := nil.
 ]
 
 { #category : #'private callbacks' }
@@ -219,6 +220,12 @@ DrmEditor >> roassalWidget [
 ]
 
 { #category : #'private callbacks' }
+DrmEditor >> save [
+	fileReference ifNil: [ ^ self saveAs ].
+	self saveWithoutChecking
+]
+
+{ #category : #'private callbacks' }
 DrmEditor >> saveAs [
 	fileReference := UIManager default
 		chooseForSaveFileReference: 'Save model as?'
@@ -228,6 +235,11 @@ DrmEditor >> saveAs [
 	fileReference exists
 		ifTrue: [ (self confirm: 'File exists, overwrite?')
 				ifFalse: [ ^ self ] ].
+	self saveWithoutChecking
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> saveWithoutChecking [
 	FLSerializer serialize: model toFileNamed: fileReference fullName.
 	self inform: 'Model saved as ' , fileReference fullName
 ]
