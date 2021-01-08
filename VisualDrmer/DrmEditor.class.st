@@ -2,11 +2,13 @@ Class {
 	#name : #DrmEditor,
 	#superclass : #SpPresenter,
 	#instVars : [
-		'toolBarPresenter',
+		'model',
+		'fileReference',
 		'tabManager',
 		'diagramPresenter',
-		'model',
-		'fileReference'
+		'fileToolBar',
+		'layoutToolBar',
+		'editToolBar'
 	],
 	#category : #'VisualDrmer-SpecUI'
 }
@@ -193,6 +195,18 @@ DrmEditor >> model: aDrmModel [
 DrmEditor >> newModel [
 	self model: DrmModel new.
 	fileReference := nil.
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> open [
+	fileReference := UIManager default
+		chooseExistingFileReference: 'Which file?'
+		extensions: #('drm')
+		path: FileLocator home.
+	fileReference ifNil: [ ^ self ].
+	self
+		model: (FLMaterializer materializeFromFileNamed: fileReference fullName).
+	self zoomToFit
 ]
 
 { #category : #'private callbacks' }
