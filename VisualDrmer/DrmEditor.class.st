@@ -28,6 +28,11 @@ DrmEditor class >> title [
 ]
 
 { #category : #'private callbacks' }
+DrmEditor >> addLink [
+	UIManager default alert: 'Not yet implemented'
+]
+
+{ #category : #'private callbacks' }
 DrmEditor >> addNode [
 	| editor |
 	editor := FactorEditor new
@@ -44,7 +49,8 @@ DrmEditor >> connectPresenters [
 		editNodeBlock: [ :node | self editNode: node ];
 		removeNodeBlock: [ :node | self removeNode: node ];
 		addLinkBlock: [ self addLink ];
-		editLinkBlock: [ :link | self editLink: link ];
+		editLinkBindingsBlock: [ :link | self editLinkBindings: link ];
+		editLinkSourcesBlock: [ :link | self editLinkSources: link ];
 		removeLinkBlock: [ :link | self removeLink: link ]
 ]
 
@@ -66,6 +72,16 @@ DrmEditor >> diagramTab [
 		provider: [ diagramPresenter
 				model: model;
 				yourself ]
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> editLinkBindings: aDrmLink [
+	UIManager default alert: 'Not yet implemented'
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> editLinkSources: aDrmLink [
+	UIManager default alert: 'Not yet implemented'
 ]
 
 { #category : #'private callbacks' }

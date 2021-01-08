@@ -9,7 +9,8 @@ Class {
 		'editNodeBlock',
 		'addLinkBlock',
 		'removeLinkBlock',
-		'editLinkBlock'
+		'editLinkBindingsBlock',
+		'editLinkSourcesBlock'
 	],
 	#category : #'VisualDrmer-RoassalWidget'
 }
@@ -90,11 +91,6 @@ DrmDiagramPresenter >> addMenuesTo: canvas [
 ]
 
 { #category : #accessing }
-DrmDiagramPresenter >> addNodeBlock [
-	^ addNodeBlock
-]
-
-{ #category : #accessing }
 DrmDiagramPresenter >> addNodeBlock: anObject [
 	addNodeBlock := anObject
 ]
@@ -163,20 +159,22 @@ DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 				menuDo: [ :menu :theCanvas | 
 					menu
 						add: 'Layout'
-						target: self
-						selector: #layout:
-						argument: theCanvas.
-					menu
+							target: self
+							selector: #layout:
+							argument: theCanvas;
 						add: 'Zoom to fit'
-						target: theCanvas
-						selector: #zoomToFit
-						argument: #().
-					menu addLine.
-					menu
+							target: theCanvas
+							selector: #zoomToFit
+							argument: #();
+						addLine;
 						add: 'Add factor'
-						target: self
-						selector: #addFactor
-						argument: #() ])
+							target: self
+							selector: #addFactor
+							argument: #();
+						add: 'Add link'
+							target: self
+							selector: #addLink
+							argument: #() ])
 ]
 
 { #category : #'private-menus' }
@@ -186,9 +184,13 @@ DrmDiagramPresenter >> configureLinkMenuesFor: canvas [
 			(RSMenuActivable new
 				menuDo: [ :menu :theLink | 
 					menu
-						add: 'Edit'
+						add: 'Edit sources'
 							target: self
-							selector: #editLink:
+							selector: #editLinkSources:
+							argument: theLink model;
+						add: 'Edit bindings'
+							target: self
+							selector: #editLinkBindings:
 							argument: theLink model;
 						add: 'Remove'
 							target: self
@@ -227,25 +229,31 @@ DrmDiagramPresenter >> drawOn: canvas [
 ]
 
 { #category : #'private-callbacks' }
-DrmDiagramPresenter >> editLink: aDrmLink [
-	editLinkBlock ifNil: [ ^ self ].
-	editNodeBlock value: aDrmLink
+DrmDiagramPresenter >> editLinkBindings: aDrmLink [
+	editLinkBindingsBlock ifNil: [ ^ self ].
+	editLinkBindingsBlock value: aDrmLink
 ]
 
 { #category : #accessing }
-DrmDiagramPresenter >> editLinkBlock: anObject [
-	editLinkBlock := anObject
+DrmDiagramPresenter >> editLinkBindingsBlock: anObject [
+	editLinkBindingsBlock := anObject
+]
+
+{ #category : #'private-callbacks' }
+DrmDiagramPresenter >> editLinkSources: aDrmLink [
+	editLinkSourcesBlock ifNil: [ ^ self ].
+	editLinkSourcesBlock value: aDrmLink
+]
+
+{ #category : #accessing }
+DrmDiagramPresenter >> editLinkSourcesBlock: anObject [
+	editLinkSourcesBlock := anObject
 ]
 
 { #category : #'private-callbacks' }
 DrmDiagramPresenter >> editNode: aDrmNode [
 	editNodeBlock ifNil: [ ^ self ].
 	editNodeBlock value: aDrmNode
-]
-
-{ #category : #accessing }
-DrmDiagramPresenter >> editNodeBlock [
-	^ editNodeBlock
 ]
 
 { #category : #accessing }
@@ -366,11 +374,6 @@ DrmDiagramPresenter >> removeLinkBlock: anObject [
 DrmDiagramPresenter >> removeNode: aNodeShape [
 	removeNodeBlock ifNil: [ ^ self ].
 	removeNodeBlock value: aNodeShape model
-]
-
-{ #category : #accessing }
-DrmDiagramPresenter >> removeNodeBlock [
-	^ removeNodeBlock
 ]
 
 { #category : #accessing }
