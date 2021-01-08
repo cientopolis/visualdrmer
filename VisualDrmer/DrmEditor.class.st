@@ -2,9 +2,9 @@ Class {
 	#name : #DrmEditor,
 	#superclass : #SpPresenter,
 	#instVars : [
-		'#tabManager',
-		'#diagramPresenter',
-		'#model => SpObservableSlot'
+		'tabManager',
+		'diagramPresenter',
+		'model'
 	],
 	#category : #'VisualDrmer-SpecUI'
 }
@@ -102,7 +102,7 @@ DrmEditor >> editNode: aNode [
 DrmEditor >> initialize [
 	super initialize.
 	model := DrmModelBuilder figureTwoDotSix.
-	self property: #model whenChangedDo: [ self updateModel ]
+
 ]
 
 { #category : #initialization }
