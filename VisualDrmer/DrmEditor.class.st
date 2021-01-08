@@ -77,7 +77,7 @@ DrmEditor >> diagramTab [
 { #category : #'private callbacks' }
 DrmEditor >> editLinkBindings: aDrmLink [
 	| editor |
-	editor := LinkEditor new
+	editor := LinkBindingsEditor new
 		availableNodes: model nodes;
 		model: aDrmLink;
 		yourself.
