@@ -76,7 +76,12 @@ DrmEditor >> diagramTab [
 
 { #category : #'private callbacks' }
 DrmEditor >> editLinkBindings: aDrmLink [
-	UIManager default alert: 'Not yet implemented'
+	| editor |
+	editor := LinkEditor new
+		availableNodes: model nodes;
+		model: aDrmLink;
+		yourself.
+	editor openModalWithSpec
 ]
 
 { #category : #'private callbacks' }

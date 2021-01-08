@@ -40,7 +40,16 @@ LinkEditor class >> title [
 
 { #category : #accessing }
 LinkEditor >> availableNodes: anObject [
-	availableNodes := anObject
+	availableNodes := anObject asArray
+]
+
+{ #category : #initialization }
+LinkEditor >> initializeDialogWindow: aDialog [
+	super initializeDialogWindow: aDialog.
+	aDialog
+		closeOnBackdropClick: true;
+		okAction: [ :presenter | self updateModel ];
+		cancelAction: [ :presenter | self model: nil ]
 ]
 
 { #category : #initialization }
@@ -60,22 +69,41 @@ LinkEditor >> initializePresenters [
 			weightDropList}
 ]
 
-{ #category : #initialization }
+{ #category : #privatecallbacks }
+LinkEditor >> model: aModel [
+	"This makes no sense; the whole purpose of using my superclass was to get notified when my model changes but modelChanges is not triggered!"
+
+	super model: aModel.
+	self updateWidgetsFromModel
+]
+
+{ #category : #privatecallbacks }
+LinkEditor >> updateModel [
+	self model origin: originDropList selectedItem.
+	self model levelAtOrigin: levelAtOriginDropList selectedItem.
+	self model destination: destinationDropList selectedItem.
+	self model
+		levelAtDestination: levelAtDestinationDropList selectedItem.
+	self model weight: weightDropList selectedItem
+]
+
+{ #category : #privatecallbacks }
 LinkEditor >> updateWidgetsFromModel [
 	self model ifNil: [ ^ self ].
+	availableNodes ifNil: [ availableNodes := {nil} ].
 	originDropList
 		items: (availableNodes copyWith: nil);
-		selectedItem: self model origin.
+		selectItem: self model origin.
 	levelAtOriginDropList
 		items: {'?' . '+' . '-'};
-		selectedItem: self model levelAtOrigin.
+		selectItem: self model levelAtOrigin.
 	destinationDropList
 		items: (availableNodes copyWith: nil);
-		selectedItem: self model destination.
+		selectItem: self model destination.
 	levelAtDestinationDropList
 		items: {'?' . '+' . '-'};
-		selectedItem: self model levelAtDestination.
+		selectItem: self model levelAtDestination.
 	weightDropList
 		items: {1 . 2 . 3};
-		selectedItem: self model weight
+		selectItem: self model weight
 ]
