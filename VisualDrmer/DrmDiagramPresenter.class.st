@@ -300,12 +300,7 @@ DrmDiagramPresenter >> initializeWindow: window [
 DrmDiagramPresenter >> labelForLevel: aValue [
 	| label |
 	label := RSLabel new
-		text:
-			(aValue < 0
-				ifTrue: [ '-' ]
-				ifFalse: [ aValue = 0
-						ifTrue: [ '?' ]
-						ifFalse: [ '+' ] ]);
+		text: aValue;
 		yourself.
 	^ RSComposite new
 		shapes: {label};
