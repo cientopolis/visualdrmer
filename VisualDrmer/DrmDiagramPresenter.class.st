@@ -28,54 +28,10 @@ DrmDiagramPresenter class >> lineWidths [
 	^ {1 . 2 . 3}
 ]
 
-{ #category : #'private-drawing' }
-DrmDiagramPresenter >> addEdgesTo: canvas [
-	| edgeBuilder edge originShape destinationShape |
-	edgeBuilder := RSEdgeBuilder line
-		withBorderAttachPoint;
-		canvas: canvas;
-		markerEnd:
-			(RSShapeFactory arrow
-				size: 13;
-				yourself).
-	model links
-		do: [ :link | 
-			originShape := canvas nodes
-				detect: [ :each | each model == link origin ].
-			destinationShape := canvas nodes
-				detect: [ :each | each model == link destination ].
-			edge := edgeBuilder edgeFrom: originShape to: destinationShape.
-			edge
-				width: (self class lineWidths at: link weight);
-				model: link ]
-]
-
 { #category : #'private-callbacks' }
 DrmDiagramPresenter >> addFactor [
 	addNodeBlock ifNil: [ ^ self ].
 	addNodeBlock value
-]
-
-{ #category : #'private-drawing' }
-DrmDiagramPresenter >> addLevelLabelsTo: aCanvas [
-	aCanvas edges
-		do: [ :edge | 
-			| originLabel destinationLabel |
-			originLabel := self labelForLevel: edge model levelAtOrigin.
-			destinationLabel := self
-				labelForLevel: edge model levelAtDestination.
-			aCanvas
-				add: originLabel;
-				add: destinationLabel.
-			edge
-				when: RSExtentChangedEvent
-				do: [ :evt | 
-					| startPoint endPoint vector |
-					startPoint := edge startPoint.
-					endPoint := edge endPoint.
-					vector := endPoint - startPoint.
-					originLabel position: startPoint + (vector * 0.125).
-					destinationLabel position: endPoint - (vector * 0.125) ] ]
 ]
 
 { #category : #'private-callbacks' }
@@ -89,73 +45,9 @@ DrmDiagramPresenter >> addLinkBlock: anObject [
 	addLinkBlock := anObject
 ]
 
-{ #category : #'private-drawing' }
-DrmDiagramPresenter >> addMenuesTo: canvas [
-	self
-		configureCanvasMenuFor: canvas;
-		configureLinkMenuesFor: canvas;
-		configureNodeMenuesFor: canvas
-]
-
 { #category : #accessing }
 DrmDiagramPresenter >> addNodeBlock: anObject [
 	addNodeBlock := anObject
-]
-
-{ #category : #'private-drawing' }
-DrmDiagramPresenter >> addNodeLabelsTo: aCanvas [
-	| labelBuilder label |
-	labelBuilder := RSMultilineLabelBuilder new.
-	labelBuilder wrapStrategy: (RSWrapStrategy new wrapMaxWidth: 100).
-	aCanvas nodes
-		do: [ :aNode | 
-			label := labelBuilder shapeFor: aNode model printString.
-			aCanvas add: label.
-			RSLocation new
-				middle;
-				center;
-				stick: label on: aNode ]
-]
-
-{ #category : #'private-drawing' }
-DrmDiagramPresenter >> addNodesTo: aCanvas [
-	| shapes |
-	shapes := model factors
-		collect: [ :aFactor | self nodeFor: aFactor ]
-		as: RSGroup.
-	aCanvas addAll: shapes
-]
-
-{ #category : #'private-drawing' }
-DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
-	| composite |
-	aCanvas edges
-		do: [ :edge | 
-			| label citationLabels citationBodies |
-			citationLabels := String new writeStream.
-			citationBodies := String new writeStream.
-			edge model sources
-				do: [ :source | 
-					citationLabels nextPutAll: source citationLabel.
-					citationBodies nextPutAll: source citationBody ]
-				separatedBy: [ citationBodies cr ].
-			label := RSLabel new
-				text: (citationLabels contents ifEmpty: ['?']);
-				yourself.
-			label
-				@
-					(RSMorphicPopup new
-						morphBuilder: [ :labelModel | citationBodies contents asTextMorph ]).
-			composite := RSComposite new
-				shapes: {label};
-				padding: 2;
-				color: Color white;
-				yourself.
-			aCanvas add: composite.
-			RSLocation new
-				middle;
-				center;
-				stick: composite on: edge ]
 ]
 
 { #category : #api }
@@ -232,16 +124,124 @@ DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
 ]
 
 { #category : #'private-drawing' }
+DrmDiagramPresenter >> drawEdgesOn: canvas [
+	| edgeBuilder edge originShape destinationShape |
+	edgeBuilder := RSEdgeBuilder line
+		withBorderAttachPoint;
+		canvas: canvas;
+		markerEnd:
+			(RSShapeFactory arrow
+				size: 13;
+				yourself).
+	model links
+		do: [ :link | 
+			originShape := canvas nodes
+				detect: [ :each | each model == link origin ].
+			destinationShape := canvas nodes
+				detect: [ :each | each model == link destination ].
+			edge := edgeBuilder edgeFrom: originShape to: destinationShape.
+			edge
+				width: (self class lineWidths at: link weight);
+				model: link ]
+]
+
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> drawLevelLabelsOn: aCanvas [
+	aCanvas edges
+		do: [ :edge | 
+			| originLabel destinationLabel |
+			originLabel := self labelForLevel: edge model levelAtOrigin.
+			destinationLabel := self
+				labelForLevel: edge model levelAtDestination.
+			aCanvas
+				add: originLabel;
+				add: destinationLabel.
+			edge
+				when: RSExtentChangedEvent
+				do: [ :evt | 
+					| startPoint endPoint vector |
+					startPoint := edge startPoint.
+					endPoint := edge endPoint.
+					vector := endPoint - startPoint.
+					originLabel position: startPoint + (vector * 0.125).
+					destinationLabel position: endPoint - (vector * 0.125) ] ]
+]
+
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> drawMenuesOn: canvas [
+	self
+		configureCanvasMenuFor: canvas;
+		configureLinkMenuesFor: canvas;
+		configureNodeMenuesFor: canvas
+]
+
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> drawNodeLabelsOn: aCanvas [
+	| labelBuilder label |
+	labelBuilder := RSMultilineLabelBuilder new.
+	labelBuilder wrapStrategy: (RSWrapStrategy new wrapMaxWidth: 100).
+	aCanvas nodes
+		do: [ :aNode | 
+			label := labelBuilder shapeFor: aNode model printString.
+			aCanvas add: label.
+			RSLocation new
+				middle;
+				center;
+				stick: label on: aNode ]
+]
+
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> drawNodesOn: aCanvas [
+	| shapes |
+	shapes := model factors
+		collect: [ :aFactor | self shapeForNode: aFactor ]
+		as: RSGroup.
+	aCanvas addAll: shapes
+]
+
+{ #category : #'private-drawing' }
 DrmDiagramPresenter >> drawOn: canvas [
 	model ifNil: [ ^ self ].
 	self
-		addNodesTo: canvas;
-		addEdgesTo: canvas;
-		addNodeLabelsTo: canvas;
-		addLevelLabelsTo: canvas;
-		addSourcesLabelsTo: canvas.
+		drawNodesOn: canvas;
+		drawEdgesOn: canvas;
+		drawNodeLabelsOn: canvas;
+		drawLevelLabelsOn: canvas;
+		drawSourcesLabelsOn: canvas.
 	canvas @ RSCanvasController.
 
+]
+
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> drawSourcesLabelsOn: aCanvas [
+	| composite |
+	aCanvas edges
+		do: [ :edge | 
+			| label citationLabels citationBodies |
+			citationLabels := String new writeStream.
+			citationBodies := String new writeStream.
+			edge model sources
+				do: [ :source | 
+					citationLabels nextPutAll: source citationLabel.
+					citationBodies nextPutAll: source citationBody ]
+				separatedBy: [ citationBodies cr ].
+			label := RSLabel new
+				text: (citationLabels contents ifEmpty: ['?']);
+				yourself.
+			label
+				@
+					(RSMorphicPopup new
+						morphBuilder: [ :labelModel | citationBodies contents asTextMorph ]).
+			composite := RSComposite new
+				shapes: {label};
+				padding: 2;
+				color: Color white;
+				yourself.
+			aCanvas add: composite.
+			RSLocation new
+				middle;
+				center;
+				stick: composite on: edge ]
 ]
 
 { #category : #'private-callbacks' }
@@ -278,7 +278,7 @@ DrmDiagramPresenter >> editNodeBlock: anObject [
 ]
 
 { #category : #'private-drawing' }
-DrmDiagramPresenter >> formForNode: aDrmNode [
+DrmDiagramPresenter >> figureForNode: aDrmNode [
 	| form |
 	aDrmNode class == DrmFactor
 		ifTrue: [ form := DrmEllipse new.
@@ -302,7 +302,7 @@ DrmDiagramPresenter >> initializePresenters [
 	diagram
 		script: [ :canvas | 
 			self drawOn: canvas.
-			self addMenuesTo: canvas ]
+			self drawMenuesOn: canvas ]
 ]
 
 { #category : #initialization }
@@ -354,20 +354,6 @@ DrmDiagramPresenter >> nodeAddedAnnouncement: aNodeAddedAnnouncement [
 	self refresh. 
 ]
 
-{ #category : #'private-drawing' }
-DrmDiagramPresenter >> nodeFor: aFactor [
-	| form |
-	form := self formForNode: aFactor.
-	form model: aFactor.
-	aFactor propertiesDictionary
-		at: #position
-		ifPresent: [ :position | form position: position ].
-	form
-		when: RSPositionChangedEvent
-		do: [ form model propertiesDictionary at: #position put: form position ].
-	^ form @ RSDraggable
-]
-
 { #category : #'private-updating' }
 DrmDiagramPresenter >> refresh [
 	| cameraPosition cameraScale |
@@ -404,6 +390,20 @@ DrmDiagramPresenter >> removeNodeBlock: anObject [
 { #category : #running }
 DrmDiagramPresenter >> run [
 	<script: 'self new model: (DrmModelBuilder figureTp); openWithSpec'>
+]
+
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> shapeForNode: aFactor [
+	| form |
+	form := self figureForNode: aFactor.
+	form model: aFactor.
+	aFactor propertiesDictionary
+		at: #position
+		ifPresent: [ :position | form position: position ].
+	form
+		when: RSPositionChangedEvent
+		do: [ form model propertiesDictionary at: #position put: form position ].
+	^ form @ RSDraggable
 ]
 
 { #category : #'private-updating' }
