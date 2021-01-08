@@ -5,7 +5,8 @@ Class {
 		'toolBarPresenter',
 		'tabManager',
 		'diagramPresenter',
-		'model'
+		'model',
+		'fileReference'
 	],
 	#category : #'VisualDrmer-SpecUI'
 }
@@ -84,7 +85,7 @@ DrmEditor >> buildToolBar [
 				label: 'Save as';
 				icon: (self iconNamed: #smallSaveAs);
 				help: 'Save as';
-				action: [ self inform: 'Save to file as ...' ];
+				action: [ self saveAs ];
 				yourself);
 		addItem:
 			(SpToolBarButton new
@@ -215,6 +216,20 @@ DrmEditor >> roassalWidget [
 	^ DrmDiagramPresenter new
 		model: model;
 		createMorph
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> saveAs [
+	fileReference := UIManager default
+		chooseForSaveFileReference: 'Save model as?'
+		extensions: #('drm')
+		path: model title asFileName , '.drm'.
+	fileReference ifNil: [ ^ self ].
+	fileReference exists
+		ifTrue: [ (self confirm: 'File exists, overwrite?')
+				ifFalse: [ ^ self ] ].
+	FLSerializer serialize: model toFileNamed: fileReference fullName.
+	self inform: 'Model saved as ' , fileReference fullName
 ]
 
 { #category : #accessing }
