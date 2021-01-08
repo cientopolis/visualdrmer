@@ -371,6 +371,7 @@ DrmDiagramPresenter >> nodeFor: aFactor [
 { #category : #'private-updating' }
 DrmDiagramPresenter >> refresh [
 	| cameraPosition cameraScale |
+	diagram canvas ifNil: [ ^ self ].
 	cameraPosition := diagram canvas camera position.
 	cameraScale := diagram canvas camera scale.
 	diagram refresh.
