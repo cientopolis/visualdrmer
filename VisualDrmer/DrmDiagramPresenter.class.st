@@ -23,6 +23,11 @@ DrmDiagramPresenter class >> defaultSpec [
 		yourself
 ]
 
+{ #category : #constants }
+DrmDiagramPresenter class >> lineWidths [
+	^ {1 . 2 . 3}
+]
+
 { #category : #'private-drawing' }
 DrmDiagramPresenter >> addEdgesTo: canvas [
 	| edgeBuilder edge originShape destinationShape |
@@ -31,7 +36,7 @@ DrmDiagramPresenter >> addEdgesTo: canvas [
 		canvas: canvas;
 		markerEnd:
 			(RSShapeFactory arrow
-				size: 10;
+				size: 13;
 				yourself).
 	model links
 		do: [ :link | 
@@ -40,7 +45,9 @@ DrmDiagramPresenter >> addEdgesTo: canvas [
 			destinationShape := canvas nodes
 				detect: [ :each | each model == link destination ].
 			edge := edgeBuilder edgeFrom: originShape to: destinationShape.
-			edge model: link ]
+			edge
+				width: (self class lineWidths at: link weight);
+				model: link ]
 ]
 
 { #category : #'private-callbacks' }
@@ -376,9 +383,9 @@ DrmDiagramPresenter >> removeLinkBlock: anObject [
 ]
 
 { #category : #'private-callbacks' }
-DrmDiagramPresenter >> removeNode: aNodeShape [
+DrmDiagramPresenter >> removeNode: aDrmNode [
 	removeNodeBlock ifNil: [ ^ self ].
-	removeNodeBlock value: aNodeShape model
+	removeNodeBlock value: aDrmNode
 ]
 
 { #category : #accessing }
