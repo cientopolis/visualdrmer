@@ -45,18 +45,18 @@ DrmEditor class >> title [
 ]
 
 { #category : #'private callbacks' }
-DrmEditor >> addLink [
-	UIManager default alert: 'Not yet implemented'
-]
-
-{ #category : #'private callbacks' }
-DrmEditor >> addNode [
+DrmEditor >> addFactor [
 	| editor |
 	editor := FactorEditor new
 		model: DrmFactor new;
 		yourself.
 	editor openModalWithSpec.
    editor model ifNotNil: [ :newNode | model addNode: newNode ] 
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> addLink [
+	UIManager default alert: 'Not yet implemented'
 ]
 
 { #category : #'private callbacks' }
@@ -70,9 +70,9 @@ DrmEditor >> buildEditToolBar [
 		addItem:
 			(SpToolBarButton new
 				label: 'Factor';
-				icon: (self iconNamed: #smallWindow);
+				icon: (self iconNamed: #uncommentedClass);
 				help: 'Add a new factor';
-				action: [ self inform: 'Factor added' ];
+				action: [ self addFactor ];
 				yourself);
 		addItem:
 			(SpToolBarButton new
@@ -86,7 +86,7 @@ DrmEditor >> buildEditToolBar [
 				label: 'Link';
 				icon: (self iconNamed: #references);
 				help: 'Add a new link';
-				action: [ self inform: 'Linked' ];
+				action: [ self addLink ];
 				yourself);
 		yourself
 ]
@@ -131,14 +131,14 @@ DrmEditor >> buildLayoutToolBar [
 		addItem:
 			(SpToolBarButton new
 				label: 'Fit';
-				icon: (self iconNamed: #smallWindow);
+				icon: (self iconNamed: #glamorousZoomToFit );
 				help: 'Zoom to fit';
 				action: [ self zoomToFit ];
 				yourself);
 		addItem:
 			(SpToolBarButton new
 				label: 'Layout';
-				icon: (self iconNamed: #references);
+				icon: (self iconNamed: #hierarchy );
 				help: 'Automatic layout';
 				action: [ self autoLayout ];
 				yourself);
@@ -148,7 +148,7 @@ DrmEditor >> buildLayoutToolBar [
 { #category : #initialization }
 DrmEditor >> connectPresenters [
 	diagramPresenter
-		addNodeBlock: [ self addNode ];
+		addNodeBlock: [ self addFactor ];
 		editNodeBlock: [ :node | self editNode: node ];
 		removeNodeBlock: [ :node | self removeNode: node ];
 		addLinkBlock: [ self addLink ];
