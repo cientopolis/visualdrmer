@@ -16,7 +16,13 @@ Class {
 { #category : #specs }
 DrmEditor class >> defaultSpec [
 	^ SpBoxLayout newVertical
-		add: #toolBarPresenter expand: false;
+		add:
+			(SpBoxLayout newHorizontal
+				add: #fileToolBar expand: false;
+				add: #layoutToolBar expand: false;
+				add: #editToolBar expand: false;
+				yourself)
+			expand: false;
 		add: #tabManager;
 		yourself
 ]
@@ -58,8 +64,35 @@ DrmEditor >> autoLayout [
 	diagramPresenter autoLayout
 ]
 
-{ #category : #initialization }
-DrmEditor >> buildToolBar [
+{ #category : #private }
+DrmEditor >> buildEditToolBar [
+	^ self newToolBar
+		addItem:
+			(SpToolBarButton new
+				label: 'Factor';
+				icon: (self iconNamed: #smallWindow);
+				help: 'Add a new factor';
+				action: [ self inform: 'Factor added' ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'Support';
+				icon: (self iconNamed: #smallWindow);
+				help: 'Add a new support';
+				action: [ self inform: 'Support added' ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'Link';
+				icon: (self iconNamed: #references);
+				help: 'Add a new link';
+				action: [ self inform: 'Linked' ];
+				yourself);
+		yourself
+]
+
+{ #category : #private }
+DrmEditor >> buildFileToolBar [
 	^ self newToolBar
 		addItem:
 			(SpToolBarButton new
@@ -73,7 +106,7 @@ DrmEditor >> buildToolBar [
 				label: 'Open';
 				icon: (self iconNamed: #open);
 				help: 'Open';
-				action: [ self inform: 'Open a file' ];
+				action: [ self open ];
 				yourself);
 		addItem:
 			(SpToolBarButton new
@@ -89,6 +122,12 @@ DrmEditor >> buildToolBar [
 				help: 'Save as';
 				action: [ self saveAs ];
 				yourself);
+		yourself
+]
+
+{ #category : #private }
+DrmEditor >> buildLayoutToolBar [
+	^ self newToolBar
 		addItem:
 			(SpToolBarButton new
 				label: 'Fit';
@@ -172,7 +211,9 @@ DrmEditor >> initialize [
 { #category : #initialization }
 DrmEditor >> initializePresenters [
 	tabManager := self newNotebook.
-	toolBarPresenter := self buildToolBar.  
+	fileToolBar := self buildFileToolBar.
+	layoutToolBar := self buildLayoutToolBar.
+	editToolBar := self buildEditToolBar.
 	diagramPresenter := DrmDiagramPresenter new.
 	tabManager
 		addPage: self diagramTab;
