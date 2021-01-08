@@ -6,7 +6,10 @@ Class {
 		'diagram',
 		'addNodeBlock',
 		'removeNodeBlock',
-		'editNodeBlock'
+		'editNodeBlock',
+		'addLinkBlock',
+		'removeLinkBlock',
+		'editLinkBlock'
 	],
 	#category : #'VisualDrmer-RoassalWidget'
 }
@@ -67,10 +70,17 @@ DrmDiagramPresenter >> addLevelLabelsTo: aCanvas [
 					destinationLabel position: endPoint - (vector * 0.125) ] ]
 ]
 
+{ #category : #'private-callbacks' }
+DrmDiagramPresenter >> addLink [
+	addLinkBlock ifNil: [ ^ self ].
+	addLinkBlock value
+]
+
 { #category : #'private-drawing' }
 DrmDiagramPresenter >> addMenuesTo: canvas [
 	self
 		configureCanvasMenuFor: canvas;
+		configureLinkMenuesFor: canvas;
 		configureNodeMenuesFor: canvas
 ]
 
@@ -140,7 +150,7 @@ DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
 				stick: composite on: edge ]
 ]
 
-{ #category : #'private-drawing' }
+{ #category : #'private-menus' }
 DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 	canvas
 		@
@@ -164,7 +174,24 @@ DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 						argument: #() ])
 ]
 
-{ #category : #'private-drawing' }
+{ #category : #'private-menus' }
+DrmDiagramPresenter >> configureLinkMenuesFor: canvas [
+	(canvas edges select: [ :each | each model notNil ])
+		@
+			(RSMenuActivable new
+				menuDo: [ :menu :theLink | 
+					menu
+						add: 'Edit'
+							target: self
+							selector: #editLink:
+							argument: theLink model;
+						add: 'Remove'
+							target: self
+							selector: #removeLink:
+							argument: theLink model ])
+]
+
+{ #category : #'private-menus' }
 DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
 	(canvas nodes select: [ :each | each model notNil ])
 		@
@@ -174,11 +201,11 @@ DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
 						add: 'Edit'
 							target: self
 							selector: #editNode:
-							argument: theFactor;
+							argument: theFactor model;
 						add: 'Remove'
 							target: self
-							selector: #remove:
-							argument: theFactor ])
+							selector: #removeNode:
+							argument: theFactor model ])
 ]
 
 { #category : #'private-drawing' }
@@ -195,9 +222,15 @@ DrmDiagramPresenter >> drawOn: canvas [
 ]
 
 { #category : #'private-callbacks' }
-DrmDiagramPresenter >> editNode: aNodeShape [
+DrmDiagramPresenter >> editLink: aDrmLink [
+	editLinkBlock ifNil: [ ^ self ].
+	editNodeBlock value: aDrmLink
+]
+
+{ #category : #'private-callbacks' }
+DrmDiagramPresenter >> editNode: aDrmNode [
 	editNodeBlock ifNil: [ ^ self ].
-	editNodeBlock value: aNodeShape model
+	editNodeBlock value: aDrmNode
 ]
 
 { #category : #accessing }
@@ -285,7 +318,6 @@ DrmDiagramPresenter >> model [
 { #category : #accessing }
 DrmDiagramPresenter >> model: anObject [
 	model := anObject.
-	model inspect. 
 	self subscribeToModelAnnouncements
 ]
 
@@ -310,7 +342,13 @@ DrmDiagramPresenter >> nodeFor: aFactor [
 ]
 
 { #category : #'private-callbacks' }
-DrmDiagramPresenter >> remove: aNodeShape [
+DrmDiagramPresenter >> removeLink: aDrmLink [
+	removeLinkBlock ifNil: [ ^ self ].
+	removeLinkBlock value: aDrmLink
+]
+
+{ #category : #'private-callbacks' }
+DrmDiagramPresenter >> removeNode: aNodeShape [
 	removeNodeBlock ifNil: [ ^ self ].
 	removeNodeBlock value: aNodeShape model
 ]
