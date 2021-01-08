@@ -158,6 +158,15 @@ DrmDiagramPresenter >> addSourcesLabelsTo: aCanvas [
 				stick: composite on: edge ]
 ]
 
+{ #category : #api }
+DrmDiagramPresenter >> autoLayout [
+	RSForceBasedLayout new
+		charge: -10000;
+		on: (diagram canvas nodes select: [ :each | each model notNil ]).
+	diagram canvas zoomToFit.
+	diagram refresh
+]
+
 { #category : #'private-menus' }
 DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 	canvas
@@ -170,7 +179,7 @@ DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
 							selector: #layout:
 							argument: theCanvas;
 						add: 'Zoom to fit'
-							target: theCanvas
+							target: self
 							selector: #zoomToFit
 							argument: #();
 						addLine;
@@ -316,12 +325,9 @@ DrmDiagramPresenter >> labelForLevel: aValue [
 		yourself
 ]
 
-{ #category : #'private-layouting' }
+{ #category : #'private-callbacks' }
 DrmDiagramPresenter >> layout: aCanvas [
-	RSForceBasedLayout new
-		charge: -10000;
-		on: (aCanvas nodes select: [ :each | each model notNil ]).
-	aCanvas zoomToFit
+	self autoLayout
 ]
 
 { #category : #'private-updating' }
@@ -423,4 +429,9 @@ DrmDiagramPresenter >> subscribeToModelAnnouncements [
 { #category : #'private-updating' }
 DrmDiagramPresenter >> subscribeToNodeAnnouncementsOn: aNode [
 	aNode announcer when: DrmNodeChangedAnnouncement send: #refresh to: self
+]
+
+{ #category : #api }
+DrmDiagramPresenter >> zoomToFit [
+	diagram canvas zoomToFit
 ]

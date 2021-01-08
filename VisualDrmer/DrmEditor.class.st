@@ -2,6 +2,7 @@ Class {
 	#name : #DrmEditor,
 	#superclass : #SpPresenter,
 	#instVars : [
+		'toolBarPresenter',
 		'tabManager',
 		'diagramPresenter',
 		'model'
@@ -12,6 +13,7 @@ Class {
 { #category : #specs }
 DrmEditor class >> defaultSpec [
 	^ SpBoxLayout newVertical
+		add: #toolBarPresenter expand: false;
 		add: #tabManager;
 		yourself
 ]
@@ -46,6 +48,59 @@ DrmEditor >> addNode [
 		yourself.
 	editor openModalWithSpec.
    editor model ifNotNil: [ :newNode | model addNode: newNode ] 
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> autoLayout [
+	diagramPresenter autoLayout
+]
+
+{ #category : #initialization }
+DrmEditor >> buildToolBar [
+	^ self newToolBar
+		addItem:
+			(SpToolBarButton new
+				label: 'Open';
+				icon: (self iconNamed: #open);
+				help: 'Open';
+				action: [ self inform: 'Open a file' ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'New';
+				icon: (self iconNamed: #changeAdd);
+				help: 'Create an empty model';
+				action: [ self newModel ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'Save';
+				icon: (self iconNamed: #smallSave);
+				help: 'Save';
+				action: [ self inform: 'Save to file' ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'Save as';
+				icon: (self iconNamed: #smallSaveAs);
+				help: 'Save as';
+				action: [ self inform: 'Save to file as ...' ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'Fit';
+				icon: (self iconNamed: #smallWindow);
+				help: 'Zoom to fit';
+				action: [ self zoomToFit ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'Layout';
+				icon: (self iconNamed: #references);
+				help: 'Automatic layout';
+				action: [ self autoLayout ];
+				yourself);
+		yourself
 ]
 
 { #category : #initialization }
@@ -114,6 +169,7 @@ DrmEditor >> initialize [
 { #category : #initialization }
 DrmEditor >> initializePresenters [
 	tabManager := self newNotebook.
+	toolBarPresenter := self buildToolBar.  
 	diagramPresenter := DrmDiagramPresenter new.
 	tabManager
 		addPage: self diagramTab;
@@ -163,4 +219,9 @@ DrmEditor >> tabManager: anObject [
 { #category : #updating }
 DrmEditor >> updateModel [
 	self .
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> zoomToFit [ 	
+	diagramPresenter zoomToFit 
 ]
