@@ -60,17 +60,17 @@ DrmEditor >> buildToolBar [
 	^ self newToolBar
 		addItem:
 			(SpToolBarButton new
-				label: 'Open';
-				icon: (self iconNamed: #open);
-				help: 'Open';
-				action: [ self inform: 'Open a file' ];
-				yourself);
-		addItem:
-			(SpToolBarButton new
 				label: 'New';
 				icon: (self iconNamed: #changeAdd);
 				help: 'Create an empty model';
 				action: [ self newModel ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'Open';
+				icon: (self iconNamed: #open);
+				help: 'Open';
+				action: [ self inform: 'Open a file' ];
 				yourself);
 		addItem:
 			(SpToolBarButton new
