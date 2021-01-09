@@ -224,7 +224,8 @@ DrmEditor >> initializePresenters [
 	diagramPresenter := DrmDiagramPresenter new.
 	tabManager
 		addPage: self diagramTab;
-		addPage: self detailsTab
+		addPage: self detailsTab;
+		addPage: self sourcesTab
 ]
 
 { #category : #initialization }
@@ -274,13 +275,6 @@ DrmEditor >> removeNode: aNode [
 	model removeNode: aNode
 ]
 
-{ #category : #private }
-DrmEditor >> roassalWidget [
-	^ DrmDiagramPresenter new
-		model: model;
-		createMorph
-]
-
 { #category : #'private callbacks' }
 DrmEditor >> save [
 	fileReference ifNil: [ ^ self saveAs ].
@@ -304,6 +298,16 @@ DrmEditor >> saveAs [
 DrmEditor >> saveWithoutChecking [
 	FLSerializer serialize: model toFileNamed: fileReference fullName.
 	self inform: 'Model saved as ' , fileReference fullName
+]
+
+{ #category : #initialization }
+DrmEditor >> sourcesTab [
+	^ SpNotebookPage
+		title: 'Sources'
+		icon: (self iconNamed: #recentMessages)
+		provider: [ self newText
+				text: 'Sources';
+				yourself ]
 ]
 
 { #category : #accessing }
