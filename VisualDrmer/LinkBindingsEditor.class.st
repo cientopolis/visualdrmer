@@ -7,6 +7,9 @@ Class {
 		'destinationDropList',
 		'levelAtDestinationDropList',
 		'weightDropList',
+		'sourcesList',
+		'sourcesToAddDropList',
+		'removeSourceButton',
 		'drmModel'
 	],
 	#category : #'VisualDrmer-SpecUI'
@@ -49,6 +52,22 @@ LinkBindingsEditor class >> defaultSpec [
 					withConstraints: [ :constraints | constraints width: 60 ];
 				yourself)
 			expand: false;
+		add: 'Sources:'
+			withConstraints: [ :constraints | 
+			constraints
+				width: 80;
+				expand: false;
+				padding: 5 ];
+		add: #sourcesList;
+		add:
+			(SpBoxLayout newHorizontal
+					add: #removeSourceButton
+						withConstraints: [ :constraints | constraints width: 80 ];
+					add: #sourcesToAddDropList;
+					yourself)
+			expand: false
+			fill: false
+			padding: 5;
 		yourself
 ]
 
@@ -68,10 +87,23 @@ LinkBindingsEditor >> availableNodes [
 { #category : #initialization }
 LinkBindingsEditor >> connectPresenters [
 	originDropList
-		whenSelectionChangedDo: [ :item | 
+		whenSelectionChangedDo: [ :evt | 
 			destinationDropList
 				items: (self availableNodes copyWithout: originDropList selectedItem);
-				selectItem: nil ]
+				selectItem: nil ].
+	sourcesList
+		whenSelectionChangedDo: [ :evt | 
+			sourcesList selection selectedItem
+				ifNil: [ removeSourceButton disable ]
+				ifNotNil: [ removeSourceButton enable ] ].
+	sourcesToAddDropList
+		whenSelectionChangedDo: [ :evt | 
+			| selection |
+			selection := sourcesToAddDropList selectedItem.
+			selection
+				ifNotNil: [ sourcesList items: (sourcesList items copyWith: selection).
+					sourcesToAddDropList
+						items: (sourcesToAddDropList listItems copyWithout: selection) ] ]
 ]
 
 { #category : #accessing }
@@ -84,9 +116,9 @@ LinkBindingsEditor >> drmModel: aDrmModel [
 LinkBindingsEditor >> initializeDialogWindow: aDialog [
 	super initializeDialogWindow: aDialog.
 	aDialog
-		initialExtent: 600 @ 160;
+		initialExtent: 600 @ 400;
 		title: 'Editing the bindings of a link';
-		closeOnBackdropClick: true;
+		closeOnBackdropClick: false;
 		okAction: [ :presenter | self updateModel ];
 		cancelAction: [ :presenter | self model: nil ]
 ]
@@ -98,14 +130,27 @@ LinkBindingsEditor >> initializePresenters [
 	destinationDropList := self newDropList.
 	levelAtDestinationDropList := self newDropList.
 	weightDropList := self newDropList.
+	sourcesList := self newList
+		beSingleSelection;
+		yourself.
+	sourcesToAddDropList := self newDropList
+		startWithoutSelection;
+		yourself.
+	removeSourceButton := self newButton
+		label: 'Remove';
+		disable;
+		yourself.
 	self updateWidgetsFromModel.
-	self
-		focusOrder addAll:
+	self focusOrder
+		addAll:
 			{originDropList.
 			levelAtOriginDropList.
 			destinationDropList.
 			levelAtDestinationDropList.
-			weightDropList}
+			weightDropList.
+			sourcesList.
+			removeSourceButton.
+			sourcesToAddDropList}
 ]
 
 { #category : #initialization }
@@ -113,6 +158,7 @@ LinkBindingsEditor >> model: aModel [
 	"This makes no sense; the whole purpose of using my superclass was to get notified when my model changes but modelChanges is not triggered!"
 
 	super model: aModel.
+	aModel ifNil: [ ^ self ].
 	self updateWidgetsFromModel
 ]
 
@@ -123,12 +169,14 @@ LinkBindingsEditor >> updateModel [
 	self model destination: destinationDropList selectedItem.
 	self model
 		levelAtDestination: levelAtDestinationDropList selectedItem.
-	self model weight: weightDropList selectedItem
+	self model weight: weightDropList selectedItem.
+	self model sources: sourcesList items.
 ]
 
 { #category : #private }
 LinkBindingsEditor >> updateWidgetsFromModel [
 	self model ifNil: [ ^ self ].
+	drmModel ifNil: [ ^ self ].
 	originDropList
 		items: self availableNodes;
 		selectItem: self model origin.
@@ -143,5 +191,8 @@ LinkBindingsEditor >> updateWidgetsFromModel [
 		selectItem: self model levelAtDestination.
 	weightDropList
 		items: {1 . 2 . 3};
-		selectItem: self model weight
+		selectItem: self model weight.
+	sourcesList items: self model sources.
+	sourcesToAddDropList
+		items: (drmModel sources copyWithoutAll: sourcesList items)
 ]

@@ -65,7 +65,7 @@ FactorEditor >> initializeDialogWindow: aDialog [
 	aDialog
 		initialExtent: 600 @ 160;
 		title: 'Editing a factor';
-		closeOnBackdropClick: true;
+		closeOnBackdropClick: false;
 		okAction: [ :presenter | self updateModel ];
 		cancelAction: [ :presenter | self model: nil ]
 ]

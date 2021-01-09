@@ -60,6 +60,13 @@ DrmSourcesPresenter >> initializePresenters [
 		label: 'Relabel';
 		action: [ self relabelSources ];
 		yourself.
+	self focusOrder
+		addAll:
+			{sourcesList.
+			addAssumptionButton.
+			addReferenceButton.
+			removeButton.
+			relabelButton}.
 	self updateWidgetsFromModel
 ]
 
