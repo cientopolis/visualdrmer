@@ -19,7 +19,9 @@ DrmEditor class >> defaultSpec [
 		add:
 			(SpBoxLayout newHorizontal
 				add: #fileToolBar expand: false;
+				add: (Smalltalk ui icons iconNamed: #blank) expand: false;
 				add: #layoutToolBar expand: false;
+				add: (Smalltalk ui icons iconNamed: #blank) copy expand: false;
 				add: #editToolBar expand: false;
 				yourself)
 			expand: false;
