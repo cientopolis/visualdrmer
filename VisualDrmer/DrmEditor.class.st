@@ -56,7 +56,12 @@ DrmEditor >> addFactor [
 
 { #category : #'private callbacks' }
 DrmEditor >> addLink [
-	UIManager default alert: 'Not yet implemented'
+	| editor |
+	editor := LinkBindingsEditor new
+		model: DrmLink new;
+		drmModel: model.
+	editor openModalWithSpec.
+	editor model ifNotNil: [ :newLink | model addLink: newLink ]
 ]
 
 { #category : #'private callbacks' }

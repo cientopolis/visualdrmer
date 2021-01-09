@@ -7,7 +7,7 @@ Class {
 		'destinationDropList',
 		'levelAtDestinationDropList',
 		'weightDropList',
-		'availableNodes'
+		'drmModel'
 	],
 	#category : #'VisualDrmer-SpecUI'
 }
@@ -58,9 +58,26 @@ LinkBindingsEditor class >> open [
 	^ self new openModalWithSpec
 ]
 
+{ #category : #private }
+LinkBindingsEditor >> availableNodes [
+	drmModel ifNil: [ ^ Array new ].
+	^ drmModel nodes
+		asSortedCollection: [ :a :b | a printString < b printString ]
+]
+
+{ #category : #initialization }
+LinkBindingsEditor >> connectPresenters [
+	originDropList
+		whenSelectionChangedDo: [ :item | 
+			destinationDropList
+				items: (self availableNodes copyWithout: originDropList selectedItem);
+				selectItem: nil ]
+]
+
 { #category : #accessing }
-LinkBindingsEditor >> availableNodes: anObject [
-	availableNodes := anObject asArray
+LinkBindingsEditor >> drmModel: aDrmModel [
+	drmModel := aDrmModel.
+	self updateWidgetsFromModel
 ]
 
 { #category : #initialization }
@@ -91,7 +108,7 @@ LinkBindingsEditor >> initializePresenters [
 			weightDropList}
 ]
 
-{ #category : #privatecallbacks }
+{ #category : #initialization }
 LinkBindingsEditor >> model: aModel [
 	"This makes no sense; the whole purpose of using my superclass was to get notified when my model changes but modelChanges is not triggered!"
 
@@ -99,7 +116,7 @@ LinkBindingsEditor >> model: aModel [
 	self updateWidgetsFromModel
 ]
 
-{ #category : #privatecallbacks }
+{ #category : #private }
 LinkBindingsEditor >> updateModel [
 	self model origin: originDropList selectedItem.
 	self model levelAtOrigin: levelAtOriginDropList selectedItem.
@@ -109,18 +126,17 @@ LinkBindingsEditor >> updateModel [
 	self model weight: weightDropList selectedItem
 ]
 
-{ #category : #privatecallbacks }
+{ #category : #private }
 LinkBindingsEditor >> updateWidgetsFromModel [
 	self model ifNil: [ ^ self ].
-	availableNodes ifNil: [ availableNodes := {nil} ].
 	originDropList
-		items: (availableNodes copyWith: nil);
+		items: self availableNodes;
 		selectItem: self model origin.
 	levelAtOriginDropList
 		items: {'?' . '+' . '-'};
 		selectItem: self model levelAtOrigin.
 	destinationDropList
-		items: (availableNodes copyWith: nil);
+		items: self availableNodes;
 		selectItem: self model destination.
 	levelAtDestinationDropList
 		items: {'?' . '+' . '-'};
