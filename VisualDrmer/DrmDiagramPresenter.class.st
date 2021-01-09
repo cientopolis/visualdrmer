@@ -9,8 +9,8 @@ Class {
 		'editNodeBlock',
 		'addLinkBlock',
 		'removeLinkBlock',
-		'editLinkBindingsBlock',
-		'editLinkSourcesBlock'
+		'editLinkSourcesBlock',
+		'editLinkBlock'
 	],
 	#category : #'VisualDrmer-RoassalWidget'
 }
@@ -92,13 +92,9 @@ DrmDiagramPresenter >> configureLinkMenuesFor: canvas [
 			(RSMenuActivable new
 				menuDo: [ :menu :theLink | 
 					menu
-						add: 'Edit sources'
+						add: 'Edit'
 							target: self
-							selector: #editLinkSources:
-							argument: theLink model;
-						add: 'Edit bindings'
-							target: self
-							selector: #editLinkBindings:
+							selector: #editLink:
 							argument: theLink model;
 						add: 'Remove'
 							target: self
@@ -223,10 +219,11 @@ DrmDiagramPresenter >> drawSourcesLabelsOn: aCanvas [
 			edge model sources
 				do: [ :source | 
 					citationLabels nextPutAll: source citationLabel.
-					citationBodies nextPutAll: source citationBody ]
+					citationBodies
+						nextPutAll: source citationLabel , ' ' , source citationBody ]
 				separatedBy: [ citationBodies cr ].
 			label := RSLabel new
-				text: (citationLabels contents ifEmpty: ['?']);
+				text: (citationLabels contents ifEmpty: [ '?' ]);
 				yourself.
 			label
 				@
@@ -245,25 +242,14 @@ DrmDiagramPresenter >> drawSourcesLabelsOn: aCanvas [
 ]
 
 { #category : #'private-callbacks' }
-DrmDiagramPresenter >> editLinkBindings: aDrmLink [
-	editLinkBindingsBlock ifNil: [ ^ self ].
-	editLinkBindingsBlock value: aDrmLink
+DrmDiagramPresenter >> editLink: aDrmLink [
+	editLinkBlock ifNil: [ ^ self ].
+	editLinkBlock value: aDrmLink
 ]
 
 { #category : #accessing }
-DrmDiagramPresenter >> editLinkBindingsBlock: anObject [
-	editLinkBindingsBlock := anObject
-]
-
-{ #category : #'private-callbacks' }
-DrmDiagramPresenter >> editLinkSources: aDrmLink [
-	editLinkSourcesBlock ifNil: [ ^ self ].
-	editLinkSourcesBlock value: aDrmLink
-]
-
-{ #category : #accessing }
-DrmDiagramPresenter >> editLinkSourcesBlock: anObject [
-	editLinkSourcesBlock := anObject
+DrmDiagramPresenter >> editLinkBlock: anObject [
+	editLinkBlock := anObject
 ]
 
 { #category : #'private-callbacks' }

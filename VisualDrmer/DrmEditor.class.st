@@ -60,7 +60,7 @@ DrmEditor >> addFactor [
 { #category : #'private callbacks' }
 DrmEditor >> addLink [
 	| editor |
-	editor := LinkBindingsEditor new
+	editor := LinkEditor new
 		model: DrmLink new;
 		drmModel: model.
 	editor openModalWithSpec.
@@ -168,8 +168,7 @@ DrmEditor >> connectPresenters [
 		editNodeBlock: [ :node | self editNode: node ];
 		removeNodeBlock: [ :node | self removeNode: node ];
 		addLinkBlock: [ self addLink ];
-		editLinkBindingsBlock: [ :link | self editLinkBindings: link ];
-		editLinkSourcesBlock: [ :link | self editLinkSources: link ];
+		editLinkBlock: [ :link | self editLink: link ];
 		removeLinkBlock: [ :link | self removeLink: link ]
 ]
 
@@ -192,10 +191,10 @@ DrmEditor >> diagramTab [
 ]
 
 { #category : #'private callbacks' }
-DrmEditor >> editLinkBindings: aDrmLink [
+DrmEditor >> editLink: aDrmLink [
 	| editor |
-	editor := LinkBindingsEditor new
-		availableNodes: model nodes;
+	editor := LinkEditor new
+		drmModel: model;
 		model: aDrmLink;
 		yourself.
 	editor openModalWithSpec

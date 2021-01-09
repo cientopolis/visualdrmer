@@ -1,5 +1,5 @@
 Class {
-	#name : #LinkBindingsEditor,
+	#name : #LinkEditor,
 	#superclass : #SpPresenterWithModel,
 	#instVars : [
 		'originDropList',
@@ -16,7 +16,7 @@ Class {
 }
 
 { #category : #specs }
-LinkBindingsEditor class >> defaultSpec [
+LinkEditor class >> defaultSpec [
 	^ SpBoxLayout newVertical
 		add:
 			(SpBoxLayout newHorizontal
@@ -72,22 +72,22 @@ LinkBindingsEditor class >> defaultSpec [
 ]
 
 { #category : #specs }
-LinkBindingsEditor class >> open [
+LinkEditor class >> open [
 	<example>
 	^ self new openModalWithSpec
 ]
 
 { #category : #private }
-LinkBindingsEditor >> availableNodes [
+LinkEditor >> availableNodes [
 	drmModel ifNil: [ ^ Array new ].
 	^ drmModel nodes
 		asSortedCollection: [ :a :b | a printString < b printString ]
 ]
 
 { #category : #initialization }
-LinkBindingsEditor >> connectPresenters [
+LinkEditor >> connectPresenters [
 	originDropList
-		whenSelectionChangedDo: [ :evt | 
+		whenSelectedItemChangedDo: [ :evt | 
 			destinationDropList
 				items: (self availableNodes copyWithout: originDropList selectedItem);
 				selectItem: nil ].
@@ -97,23 +97,21 @@ LinkBindingsEditor >> connectPresenters [
 				ifNil: [ removeSourceButton disable ]
 				ifNotNil: [ removeSourceButton enable ] ].
 	sourcesToAddDropList
-		whenSelectionChangedDo: [ :evt | 
+		whenSelectedItemChangedDo: [ :evt | 
 			| selection |
 			selection := sourcesToAddDropList selectedItem.
 			selection
-				ifNotNil: [ sourcesList items: (sourcesList items copyWith: selection).
-					sourcesToAddDropList
-						items: (sourcesToAddDropList listItems copyWithout: selection) ] ]
+				ifNotNil: [ sourcesList items: (sourcesList items copyWith: selection) ] ]
 ]
 
 { #category : #accessing }
-LinkBindingsEditor >> drmModel: aDrmModel [
+LinkEditor >> drmModel: aDrmModel [
 	drmModel := aDrmModel.
 	self updateWidgetsFromModel
 ]
 
 { #category : #initialization }
-LinkBindingsEditor >> initializeDialogWindow: aDialog [
+LinkEditor >> initializeDialogWindow: aDialog [
 	super initializeDialogWindow: aDialog.
 	aDialog
 		initialExtent: 600 @ 400;
@@ -124,23 +122,25 @@ LinkBindingsEditor >> initializeDialogWindow: aDialog [
 ]
 
 { #category : #initialization }
-LinkBindingsEditor >> initializePresenters [
+LinkEditor >> initializePresenters [
 	originDropList := self newDropList.
 	levelAtOriginDropList := self newDropList.
 	destinationDropList := self newDropList.
 	levelAtDestinationDropList := self newDropList.
 	weightDropList := self newDropList.
 	sourcesList := self newList
+		display: [ :item | item citationLabel , '' , item citationBody ];
 		beSingleSelection;
 		yourself.
 	sourcesToAddDropList := self newDropList
+		display: [ :item | item citationLabel , '' , item citationBody ];
 		startWithoutSelection;
 		yourself.
 	removeSourceButton := self newButton
 		label: 'Remove';
+		action: [ self removeSelectedSource ];
 		disable;
 		yourself.
-	self updateWidgetsFromModel.
 	self focusOrder
 		addAll:
 			{originDropList.
@@ -154,7 +154,7 @@ LinkBindingsEditor >> initializePresenters [
 ]
 
 { #category : #initialization }
-LinkBindingsEditor >> model: aModel [
+LinkEditor >> model: aModel [
 	"This makes no sense; the whole purpose of using my superclass was to get notified when my model changes but modelChanges is not triggered!"
 
 	super model: aModel.
@@ -162,8 +162,15 @@ LinkBindingsEditor >> model: aModel [
 	self updateWidgetsFromModel
 ]
 
+{ #category : #initialization }
+LinkEditor >> removeSelectedSource [
+	| selectedItem |
+	selectedItem := sourcesList selection selectedItem.
+	sourcesList items: (sourcesList items copyWithout: selectedItem)
+]
+
 { #category : #private }
-LinkBindingsEditor >> updateModel [
+LinkEditor >> updateModel [
 	self model origin: originDropList selectedItem.
 	self model levelAtOrigin: levelAtOriginDropList selectedItem.
 	self model destination: destinationDropList selectedItem.
@@ -174,7 +181,7 @@ LinkBindingsEditor >> updateModel [
 ]
 
 { #category : #private }
-LinkBindingsEditor >> updateWidgetsFromModel [
+LinkEditor >> updateWidgetsFromModel [
 	self model ifNil: [ ^ self ].
 	drmModel ifNil: [ ^ self ].
 	originDropList
