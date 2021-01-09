@@ -6,6 +6,7 @@ Class {
 		'fileReference',
 		'tabManager',
 		'diagramPresenter',
+		'sourcesPresenter',
 		'fileToolBar',
 		'layoutToolBar',
 		'editToolBar'
@@ -110,6 +111,14 @@ DrmEditor >> buildFileToolBar [
 				yourself);
 		addItem:
 			(SpToolBarButton new
+				label: 'Example';
+				icon: (self iconNamed: #image);
+				help: 'Opens an example model';
+				action: [ self openExample ];
+				yourself);
+
+		addItem:
+			(SpToolBarButton new
 				label: 'Open';
 				icon: (self iconNamed: #open);
 				help: 'Open';
@@ -179,9 +188,7 @@ DrmEditor >> diagramTab [
 	^ SpNotebookPage
 		title: 'Diagram'
 		icon: (self iconNamed: #objects)
-		provider: [ diagramPresenter
-				model: model;
-				yourself ]
+		provider: [ diagramPresenter ]
 ]
 
 { #category : #'private callbacks' }
@@ -211,21 +218,25 @@ DrmEditor >> editNode: aNode [
 { #category : #initialization }
 DrmEditor >> initialize [
 	super initialize.
-	model := DrmModelBuilder figureTwoDotSix.
 
 ]
 
 { #category : #initialization }
 DrmEditor >> initializePresenters [
-	tabManager := self newNotebook.
 	fileToolBar := self buildFileToolBar.
 	layoutToolBar := self buildLayoutToolBar.
 	editToolBar := self buildEditToolBar.
-	diagramPresenter := DrmDiagramPresenter new.
-	tabManager
+	diagramPresenter := DrmDiagramPresenter new
+		model: model;
+		yourself.
+	sourcesPresenter := DrmSourcesPresenter new
+		model: model;
+		yourself.
+	tabManager := self newNotebook
 		addPage: self diagramTab;
 		addPage: self detailsTab;
-		addPage: self sourcesTab
+		addPage: self sourcesTab;
+		yourself
 ]
 
 { #category : #initialization }
@@ -237,7 +248,8 @@ DrmEditor >> initializeWindow: window [
 { #category : #accessing }
 DrmEditor >> model: aDrmModel [
 	model := aDrmModel.
-	diagramPresenter model: aDrmModel
+	diagramPresenter model: aDrmModel.
+	sourcesPresenter model: aDrmModel
 ]
 
 { #category : #'private callbacks' }
@@ -256,6 +268,12 @@ DrmEditor >> open [
 	self
 		model: (FLMaterializer materializeFromFileNamed: fileReference fullName).
 	self zoomToFit
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> openExample [
+	self model: DrmModelBuilder figureTp.
+	self autoLayout
 ]
 
 { #category : #'private callbacks' }
@@ -305,9 +323,7 @@ DrmEditor >> sourcesTab [
 	^ SpNotebookPage
 		title: 'Sources'
 		icon: (self iconNamed: #recentMessages)
-		provider: [ self newText
-				text: 'Sources';
-				yourself ]
+		provider: [ sourcesPresenter ]
 ]
 
 { #category : #accessing }

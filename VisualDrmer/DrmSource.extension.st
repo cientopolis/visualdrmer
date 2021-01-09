@@ -2,7 +2,7 @@ Extension { #name : #DrmSource }
 
 { #category : #'*VisualDrmer' }
 DrmSource >> citationBody [
-	^ '[' , self label , '] ', notes
+	^ notes
 ]
 
 { #category : #'*VisualDrmer' }

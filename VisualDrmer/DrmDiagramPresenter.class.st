@@ -344,8 +344,8 @@ DrmDiagramPresenter >> model [
 { #category : #accessing }
 DrmDiagramPresenter >> model: anObject [
 	model := anObject.
-	self subscribeToModelAnnouncements.
-	self refresh.
+	model ifNotNil: [ self subscribeToModelAnnouncements ].
+	self refresh
 ]
 
 { #category : #'private-updating' }

@@ -2,8 +2,15 @@ Extension { #name : #DrmModelBuilder }
 
 { #category : #'*VisualDrmer' }
 DrmModelBuilder class >> figureTp [
-	| builder costOfProduction amountOfProfit timeToMarket link qualityOfProduct customerSatisfaction qualityOfProblemDefinition supportProblemDefinition qualityOfdesing numberOfmodi porcentaje |
+	| builder costOfProduction amountOfProfit timeToMarket link qualityOfProduct customerSatisfaction qualityOfProblemDefinition supportProblemDefinition qualityOfdesing numberOfmodi porcentaje source assumption sourceB |
 	builder := self new.
+	source := builder
+		referenceLabeled: '5'
+		citation: 'Gomez A. El libro de los sueños (1996).'.
+	sourceB := builder
+		referenceLabeled: '5b'
+		citation: 'Gomez A. El libro de los sueños II parte (1998).'.
+	assumption := builder assumption: 'Because I say so'.
 	costOfProduction := builder
 		factorOnAttribute: 'cost'
 		of: 'production'.
@@ -14,10 +21,11 @@ DrmModelBuilder class >> figureTp [
 		factorOnAttribute: 'duration'
 		of: 'time-to-market'.
 	link := builder link: timeToMarket to: amountOfProfit.
+	assumption := builder assumption: ''.
 	link
 		levelAtOrigin: '-';
 		levelAtDestination: '+';
-		addSource: (builder assumption: '').
+		addSource: assumption.
 	qualityOfProduct := builder
 		factorOnAttribute: 'quality'
 		of: 'product'.
@@ -28,19 +36,13 @@ DrmModelBuilder class >> figureTp [
 	link
 		levelAtOrigin: '+';
 		levelAtDestination: '+';
-		addSource:
-			(builder
-				referenceLabeled: '5'
-				citation: 'Gomez A. El libro de los sueños (1996).');
-		addSource:
-			(builder
-				referenceLabeled: '5b'
-				citation: 'Gomez A. El libro de los sueños II parte (1998).').
+		addSource: source;
+		addSource: sourceB.
 	link := builder link: qualityOfProduct to: amountOfProfit.
 	link
 		levelAtOrigin: '+';
 		levelAtDestination: '+';
-		addSource: (builder assumption: '').
+		addSource: assumption.
 	qualityOfProblemDefinition := builder
 		factorOnAttribute: 'quality'
 		of: 'problem definition'.
@@ -51,7 +53,7 @@ DrmModelBuilder class >> figureTp [
 		to: qualityOfProblemDefinition.
 	link
 		levelAtDestination: '+';
-		addSource: (builder assumption: '').
+		addSource: assumption.
 	qualityOfdesing := builder
 		factorOnAttribute: 'quality'
 		of: 'design evaluation'.
@@ -59,12 +61,12 @@ DrmModelBuilder class >> figureTp [
 	link
 		levelAtOrigin: '+';
 		levelAtDestination: '-';
-		addSource: (builder assumption: '').
+		addSource: assumption.
 	link := builder link: qualityOfdesing to: qualityOfProduct.
 	link
 		levelAtOrigin: '+';
 		levelAtDestination: '+';
-		addSource: (builder assumption: '').
+		addSource: assumption.
 	numberOfmodi := builder
 		factorOnAttribute: 'number'
 		of: 'modifications'.
@@ -72,7 +74,7 @@ DrmModelBuilder class >> figureTp [
 	link
 		levelAtOrigin: '+';
 		levelAtDestination: '-';
-		addSource: (builder assumption: '').
+		addSource: assumption.
 	porcentaje := builder
 		factorOnAttribute: '%'
 		of: 'design time spent on modifications'.
@@ -80,16 +82,16 @@ DrmModelBuilder class >> figureTp [
 	link
 		levelAtOrigin: '+';
 		levelAtDestination: '-';
-		addSource: (builder assumption: '').
+		addSource: assumption.
 	link := builder link: porcentaje to: timeToMarket.
 	link
 		levelAtOrigin: '-';
 		levelAtDestination: '-';
-		addSource: (builder assumption: '').
+		addSource: assumption.
 	link := builder link: numberOfmodi to: porcentaje.
 	link
 		levelAtOrigin: '-';
 		levelAtDestination: '-';
-		addSource: (builder experience: '').
+		addSource: assumption.
 	^ builder model
 ]
