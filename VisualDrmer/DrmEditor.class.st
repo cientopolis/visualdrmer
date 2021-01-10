@@ -228,7 +228,7 @@ DrmEditor >> initializePresenters [
 	diagramPresenter := DrmDiagramPresenter new
 		model: model;
 		yourself.
-	sourcesPresenter := DrmSourcesPresenter new
+	sourcesPresenter := SourcesPresenter new
 		model: model;
 		yourself.
 	tabManager := self newNotebook

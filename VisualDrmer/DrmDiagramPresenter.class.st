@@ -407,7 +407,14 @@ DrmDiagramPresenter >> subscribeToModelAnnouncements [
 		when: DrmLinkAddedAnnouncement
 			send: #linkAddedAnnouncement:
 			to: self;
-		when: DrmLinkRemovedAnnouncement send: #refresh to: self.
+		when: DrmLinkRemovedAnnouncement send: #refresh to: self;
+		when: DrmModelSourcesChangedAnnouncement send: #refresh to: self.
+	model sources
+		do: [ :aSource | 
+			aSource announcer
+				when: DrmSourceChangedAnnouncement
+				send: #refresh
+				to: self ].
 	model nodes
 		do: [ :aNode | self subscribeToNodeAnnouncementsOn: aNode ].
 	model links
