@@ -216,8 +216,8 @@ DrmEditor >> editNode: aNode [
 
 { #category : #initialization }
 DrmEditor >> initialize [
-	super initialize.
-
+	model := DrmModel new.
+	super initialize
 ]
 
 { #category : #initialization }

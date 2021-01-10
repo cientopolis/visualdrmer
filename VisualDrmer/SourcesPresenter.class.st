@@ -14,7 +14,6 @@ Class {
 { #category : #specs }
 SourcesPresenter class >> defaultSpec [
 	^ SpBoxLayout newVertical
-		add: 'Sources' expand: false;
 		add: #sourcesList;
 		add:
 			(SpBoxLayout newHorizontal
@@ -31,6 +30,28 @@ SourcesPresenter class >> defaultSpec [
 SourcesPresenter class >> open [
 	<example>
 	^ self new openWithSpec
+]
+
+{ #category : #callbacks }
+SourcesPresenter >> addAssumption [
+	| editor newSource |
+	newSource := DrmAssumption new.
+	editor := SourceEditor new
+		model: newSource;
+		yourself.
+	editor openModalWithSpec.
+	editor model ifNotNil: [ self model addSource: newSource ]
+]
+
+{ #category : #callbacks }
+SourcesPresenter >> addReference [
+	| editor newSource |
+	newSource := DrmReference new.
+	editor := SourceEditor new
+		model: newSource;
+		yourself.
+	editor openModalWithSpec: #referenceSpec.
+	editor model ifNotNil: [ self model addSource: newSource ]
 ]
 
 { #category : #initialization }
@@ -93,18 +114,35 @@ SourcesPresenter >> initializeWindow: window [
 SourcesPresenter >> model: aModel [
 	"This makes no sense; the whole purpose of using my superclass was to get notified when my model changes but modelChanges is not triggered!"
 
+	aModel ifNil: [ ^ self error: 'Model should not be nil' ].
 	super model: aModel.
-	aModel ifNil: [ ^ self ].
 	self subscribeToModelAnnouncements.
 	self updateWidgetsFromModel
 ]
 
-{ #category : #accessing }
+{ #category : #announcements }
+SourcesPresenter >> modelSourcesChangedAnnouncement [
+	self subscribeToSourceAnnouncements.
+	self updateWidgetsFromModel
+]
+
+{ #category : #callbacks }
+SourcesPresenter >> removeSelected [
+	self model
+		sources: (self model sources copyWithout: sourcesList selection selectedItem)
+]
+
+{ #category : #announcements }
 SourcesPresenter >> subscribeToModelAnnouncements [
 	self model announcer
 		when: DrmModelSourcesChangedAnnouncement
-		send: #updateWidgetsFromModel 
+		send: #modelSourcesChangedAnnouncement
 		to: self.
+	self subscribeToSourceAnnouncements
+]
+
+{ #category : #announcements }
+SourcesPresenter >> subscribeToSourceAnnouncements [
 	self model sources
 		do: [ :aSource | 
 			aSource announcer
@@ -117,6 +155,7 @@ SourcesPresenter >> subscribeToModelAnnouncements [
 SourcesPresenter >> updateWidgetsFromModel [
 	self model ifNil: [ ^ self ].
 	sourcesList items: self model sources.
+	sourcesList selectItem: nil.
 	self updateWidgetsState
 ]
 

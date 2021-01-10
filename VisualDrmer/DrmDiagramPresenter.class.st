@@ -197,7 +197,6 @@ DrmDiagramPresenter >> drawNodesOn: aCanvas [
 
 { #category : #'private-drawing' }
 DrmDiagramPresenter >> drawOn: canvas [
-	model ifNil: [ ^ self ].
 	self
 		drawNodesOn: canvas;
 		drawEdgesOn: canvas;
@@ -329,8 +328,9 @@ DrmDiagramPresenter >> model [
 
 { #category : #accessing }
 DrmDiagramPresenter >> model: anObject [
+	anObject ifNil: [ self error: 'Model should never be nil' ].
 	model := anObject.
-	model ifNotNil: [ self subscribeToModelAnnouncements ].
+	self subscribeToModelAnnouncements.
 	self refresh
 ]
 
