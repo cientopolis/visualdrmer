@@ -64,3 +64,25 @@ DetailsEditor >> initializePresenters [
 			titleTextInput.
 			notesText}
 ]
+
+{ #category : #initialization }
+DetailsEditor >> updateModel [
+	self model
+		author: authorTextInput accept;
+		text.
+	self model
+		title: titleTextInput accept;
+		text.
+	self model
+		notes: notesText accept;
+		text
+]
+
+{ #category : #initialization }
+DetailsEditor >> updateWidgetsFromModel [ 
+
+  authorTextInput := self model author.
+  titleTextInput := self model title.
+  notesText := self model notes.
+	
+]

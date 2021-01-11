@@ -266,12 +266,15 @@ DrmDiagramPresenter >> editNodeBlock: anObject [
 DrmDiagramPresenter >> figureForNode: aDrmNode [
 	| form |
 	aDrmNode class == DrmFactor
-		ifTrue: [ form := DrmEllipse new.
-			form
-				border:
-					(aDrmNode isExternal
-						ifTrue: [ RSBorder new dashArray: #(4) ]
-						ifFalse: [ RSBorder new ]) ].
+		ifTrue: [ | border |
+			form := DrmEllipse new.
+			border := RSBorder new.
+			aDrmNode isExternal
+				ifTrue: [ border dashArray: #(4) ].
+			aDrmNode isSuccessFactor | aDrmNode isMeasurableSuccessFactor
+				| aDrmNode isKeyFactor
+				ifTrue: [ border width: 3 ].
+			form border: border ].
 	aDrmNode class == DrmSupport
 		ifTrue: [ form := RSShapeFactory hexagon.
 			form border: RSBorder new ].

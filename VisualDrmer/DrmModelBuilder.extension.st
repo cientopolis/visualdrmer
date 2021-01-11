@@ -14,7 +14,7 @@ DrmModelBuilder class >> figureTp [
 	costOfProduction := builder
 		factorOnAttribute: 'cost'
 		of: 'production'.
-	costOfProduction isExternal: true.
+	costOfProduction beExternal.
 	amountOfProfit := builder factorOnAttribute: 'amount' of: 'profit'.
 	builder link: costOfProduction to: amountOfProfit.
 	timeToMarket := builder
