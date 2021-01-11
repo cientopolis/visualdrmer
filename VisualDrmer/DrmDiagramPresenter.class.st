@@ -149,6 +149,8 @@ DrmDiagramPresenter >> drawLevelLabelsOn: aCanvas [
 			originLabel := self labelForLevel: edge model levelAtOrigin.
 			destinationLabel := self
 				labelForLevel: edge model levelAtDestination.
+			originLabel model: edge.
+			destinationLabel model: edge.
 			aCanvas
 				add: originLabel;
 				add: destinationLabel.
@@ -166,9 +168,9 @@ DrmDiagramPresenter >> drawLevelLabelsOn: aCanvas [
 { #category : #'private-drawing' }
 DrmDiagramPresenter >> drawMenuesOn: canvas [
 	self
-		configureCanvasMenuFor: canvas;
 		configureLinkMenuesFor: canvas;
 		configureNodeMenuesFor: canvas
+	"	configureCanvasMenuFor: canvas;"
 ]
 
 { #category : #'private-drawing' }
