@@ -80,7 +80,12 @@ SourceEditor >> initializeDialogWindow: aDialog [
 SourceEditor >> initializePresenters [
 	notesText := self newText.
 	labelTextInput := self newTextInput.
-	citationText := self newText
+	citationText := self newText.
+	self focusOrder
+		addAll:
+			{labelTextInput.
+			citationText.
+			notesText}
 ]
 
 { #category : #'connection to model' }
