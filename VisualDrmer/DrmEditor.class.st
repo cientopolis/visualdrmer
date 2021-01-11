@@ -116,7 +116,6 @@ DrmEditor >> buildFileToolBar [
 				help: 'Opens an example model';
 				action: [ self openExample ];
 				yourself);
-
 		addItem:
 			(SpToolBarButton new
 				label: 'Open';
@@ -137,6 +136,13 @@ DrmEditor >> buildFileToolBar [
 				icon: (self iconNamed: #smallSaveAs);
 				help: 'Save as';
 				action: [ self saveAs ];
+				yourself);
+		addItem:
+			(SpToolBarButton new
+				label: 'Details';
+				icon: (self iconNamed: #confirm);
+				help: 'Edit the document details';
+				action: [ self editDocumentDetails ];
 				yourself);
 		yourself
 ]
@@ -178,6 +184,13 @@ DrmEditor >> diagramTab [
 		title: 'Diagram'
 		icon: (self iconNamed: #objects)
 		provider: [ diagramPresenter ]
+]
+
+{ #category : #'private callbacks' }
+DrmEditor >> editDocumentDetails [
+	DetailsEditor new
+		model: model;
+		openModalWithSpec
 ]
 
 { #category : #'private callbacks' }

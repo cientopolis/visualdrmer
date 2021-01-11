@@ -111,14 +111,6 @@ FactorEditor >> initializePresenters [
 ]
 
 { #category : #callbacks }
-FactorEditor >> model: aModel [
-	"This makes no sense; the whole purpose of using my superclass was to get notified when my model changes but modelChanges is not triggered!"
-
-	super model: aModel.
-	self updateWidgetsFromModel
-]
-
-{ #category : #callbacks }
 FactorEditor >> updateModel [
 	self model
 		attribute:
