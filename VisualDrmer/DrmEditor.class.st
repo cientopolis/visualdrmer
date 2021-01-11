@@ -173,16 +173,6 @@ DrmEditor >> connectPresenters [
 ]
 
 { #category : #initialization }
-DrmEditor >> detailsTab [
-	^ SpNotebookPage
-		title: 'Details'
-		icon: (self iconNamed: #glamorousBrowse)
-		provider: [ self newText
-				text: 'Formulario';
-				yourself ]
-]
-
-{ #category : #initialization }
 DrmEditor >> diagramTab [
 	^ SpNotebookPage
 		title: 'Diagram'
@@ -233,7 +223,6 @@ DrmEditor >> initializePresenters [
 		yourself.
 	tabManager := self newNotebook
 		addPage: self diagramTab;
-		addPage: self detailsTab;
 		addPage: self sourcesTab;
 		yourself
 ]
