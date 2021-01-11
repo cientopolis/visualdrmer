@@ -68,6 +68,16 @@ DrmEditor >> addLink [
 ]
 
 { #category : #'private callbacks' }
+DrmEditor >> addSupport [
+	| editor |
+	editor := SupportEditor new
+		model: DrmSupport new;
+		yourself.
+	editor openModalWithSpec.
+	editor model ifNotNil: [ :newNode | model addNode: newNode ]
+]
+
+{ #category : #'private callbacks' }
 DrmEditor >> autoLayout [
 	diagramPresenter autoLayout
 ]
@@ -85,14 +95,14 @@ DrmEditor >> buildEditToolBar [
 		addItem:
 			(SpToolBarButton new
 				label: 'Support';
-				icon: (self iconNamed: #smallWindow);
+				icon: (self iconNamed: #tools);
 				help: 'Add a new support';
-				action: [ self inform: 'Support added' ];
+				action: [ self addSupport ];
 				yourself);
 		addItem:
 			(SpToolBarButton new
 				label: 'Link';
-				icon: (self iconNamed: #references);
+				icon: (self iconNamed: #smallPublish   );
 				help: 'Add a new link';
 				action: [ self addLink ];
 				yourself);
@@ -211,7 +221,9 @@ DrmEditor >> editLinkSources: aDrmLink [
 { #category : #'private callbacks' }
 DrmEditor >> editNode: aNode [
 	| editor |
-	editor := FactorEditor new
+	editor := (aNode class = DrmFactor
+		ifTrue: [ FactorEditor ]
+		ifFalse: [ SupportEditor ]) new
 		model: aNode;
 		yourself.
 	editor openModalWithSpec
