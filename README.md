@@ -4,7 +4,7 @@
 
 Metacello new
     baseline: 'VisualDrmer';
-    repository: 'github://cientopolis/visualdrmer';
+    repository: 'github://cientopolis/visualdrmer:main';
     load.
     
 ```
