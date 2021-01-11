@@ -111,6 +111,15 @@ FactorEditor >> initializePresenters [
 ]
 
 { #category : #callbacks }
+FactorEditor >> model: aModel [
+	"This makes no sense; the whole purpose of using my superclass was to get notified when my model changes but modelChanges is not triggered!"
+
+	super model: aModel.
+	aModel ifNil: [ ^ self ].
+	self updateWidgetsFromModel
+]
+
+{ #category : #callbacks }
 FactorEditor >> updateModel [
 	self model
 		attribute:
@@ -129,7 +138,8 @@ FactorEditor >> updateModel [
 		ifTrue: [ self model beKeyFactor ].
 	roleDropList selectedItem = self class externalFactorLabel
 		ifTrue: [ self model beExternal ].
-	roleDropList selectedItem isEmpty
+	(roleDropList selectedItem isNil
+		or: [ roleDropList selectedItem isEmpty ])
 		ifTrue: [ self model beNormal ]
 ]
 
