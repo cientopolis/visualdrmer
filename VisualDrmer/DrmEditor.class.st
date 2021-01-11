@@ -241,16 +241,29 @@ DrmEditor >> initializePresenters [
 ]
 
 { #category : #initialization }
-DrmEditor >> initializeWindow: window [
-	window
-		initialExtent: 1200 @ 750
+DrmEditor >> initializeWindow: aWindowPresenter [
+	aWindowPresenter
+		initialExtent: 1200 @ 750;
+		windowIcon: (self iconNamed: #paint);
+		askOkToClose: true.
+		aWindowPresenter title: model title. 
 ]
 
 { #category : #accessing }
 DrmEditor >> model: aDrmModel [
 	model := aDrmModel.
+	model announcer
+		when: DrmModelChangedAnnouncement
+		send: #modelChangedAnnouncement
+		to: self.
 	diagramPresenter model: aDrmModel.
 	sourcesPresenter model: aDrmModel
+]
+
+{ #category : #announcements }
+DrmEditor >> modelChangedAnnouncement [
+
+  self withWindowDo: [ :window | window title: model title ]
 ]
 
 { #category : #'private callbacks' }
@@ -335,11 +348,6 @@ DrmEditor >> tabManager [
 { #category : #accessing }
 DrmEditor >> tabManager: anObject [
 	tabManager := anObject
-]
-
-{ #category : #updating }
-DrmEditor >> updateModel [
-	self .
 ]
 
 { #category : #'private callbacks' }
