@@ -60,63 +60,20 @@ DrmDiagramPresenter >> autoLayout [
 ]
 
 { #category : #'private-menus' }
-DrmDiagramPresenter >> configureCanvasMenuFor: canvas [
-	canvas
-		@
-			(RSMenuActivable new
-				menuDo: [ :menu :theCanvas | 
-					menu
-						add: 'Layout'
-							target: self
-							selector: #layout:
-							argument: theCanvas;
-						add: 'Zoom to fit'
-							target: self
-							selector: #zoomToFit
-							argument: #();
-						addLine;
-						add: 'Add factor'
-							target: self
-							selector: #addFactor
-							argument: #();
-						add: 'Add link'
-							target: self
-							selector: #addLink
-							argument: #() ])
-]
-
-{ #category : #'private-menus' }
-DrmDiagramPresenter >> configureLinkMenuesFor: canvas [
-	(canvas edges select: [ :each | each model notNil ])
-		@
-			(RSMenuActivable new
-				menuDo: [ :menu :theLink | 
-					menu
-						add: 'Edit'
-							target: self
-							selector: #editLink:
-							argument: theLink model;
-						add: 'Remove'
-							target: self
-							selector: #removeLink:
-							argument: theLink model ])
-]
-
-{ #category : #'private-menus' }
-DrmDiagramPresenter >> configureNodeMenuesFor: canvas [
+DrmDiagramPresenter >> configureShapeMenuesFor: canvas [
 	(canvas nodes select: [ :each | each model notNil ])
 		@
 			(RSMenuActivable new
-				menuDo: [ :menu :theFactor | 
+				menuDo: [ :menu :theShape | 
 					menu
 						add: 'Edit'
 							target: self
-							selector: #editNode:
-							argument: theFactor model;
+							selector: #edit:
+							argument: theShape model;
 						add: 'Remove'
 							target: self
-							selector: #removeNode:
-							argument: theFactor model ])
+							selector: #remove:
+							argument: theShape model ])
 ]
 
 { #category : #'private-drawing' }
@@ -149,8 +106,8 @@ DrmDiagramPresenter >> drawLevelLabelsOn: aCanvas [
 			originLabel := self labelForLevel: edge model levelAtOrigin.
 			destinationLabel := self
 				labelForLevel: edge model levelAtDestination.
-			originLabel model: edge.
-			destinationLabel model: edge.
+			originLabel model: edge model.
+			destinationLabel model: edge model.
 			aCanvas
 				add: originLabel;
 				add: destinationLabel.
@@ -167,9 +124,9 @@ DrmDiagramPresenter >> drawLevelLabelsOn: aCanvas [
 
 { #category : #'private-drawing' }
 DrmDiagramPresenter >> drawMenuesOn: canvas [
-	self
-		configureLinkMenuesFor: canvas;
-		configureNodeMenuesFor: canvas
+	self configureShapeMenuesFor: canvas
+	"configureLinkMenuesFor: canvas;
+		configureNodeMenuesFor: canvas"
 	"	configureCanvasMenuFor: canvas;"
 ]
 
@@ -240,6 +197,13 @@ DrmDiagramPresenter >> drawSourcesLabelsOn: aCanvas [
 				middle;
 				center;
 				stick: composite on: edge ]
+]
+
+{ #category : #'private-callbacks' }
+DrmDiagramPresenter >> edit: aShapeWithAModel [
+	aShapeWithAModel class = DrmLink
+		ifTrue: [ self editLink: aShapeWithAModel ]
+		ifFalse: [ self editNode: aShapeWithAModel ]
 ]
 
 { #category : #'private-callbacks' }
@@ -354,6 +318,13 @@ DrmDiagramPresenter >> refresh [
 	diagram refresh.
 	diagram canvas camera position: cameraPosition.
 	diagram canvas camera scale: cameraScale
+]
+
+{ #category : #'private-callbacks' }
+DrmDiagramPresenter >> remove: aShapeWithAModel [
+	aShapeWithAModel class = DrmLink
+		ifTrue: [ self removeLink: aShapeWithAModel ]
+		ifFalse: [ self removeNode: aShapeWithAModel ]
 ]
 
 { #category : #'private-callbacks' }
