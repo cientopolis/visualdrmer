@@ -111,15 +111,17 @@ DrmDiagramPresenter >> drawLevelLabelsOn: aCanvas [
 			aCanvas
 				add: originLabel;
 				add: destinationLabel.
+			self
+				positionOriginLabel: originLabel
+				destinationLabel: destinationLabel
+				for: edge.
 			edge
 				when: RSExtentChangedEvent
 				do: [ :evt | 
-					| startPoint endPoint vector |
-					startPoint := edge startPoint.
-					endPoint := edge endPoint.
-					vector := endPoint - startPoint.
-					originLabel position: startPoint + (vector * 0.125).
-					destinationLabel position: endPoint - (vector * 0.125) ] ]
+					self
+						positionOriginLabel: originLabel
+						destinationLabel: destinationLabel
+						for: edge ] ]
 ]
 
 { #category : #'private-drawing' }
@@ -271,6 +273,7 @@ DrmDiagramPresenter >> labelForLevel: aValue [
 	| label |
 	label := RSLabel new
 		text: aValue;
+		bold;
 		yourself.
 	^ RSComposite new
 		shapes: {label};
@@ -307,6 +310,16 @@ DrmDiagramPresenter >> model: anObject [
 DrmDiagramPresenter >> nodeAddedAnnouncement: aNodeAddedAnnouncement [
 	self subscribeToNodeAnnouncementsOn: aNodeAddedAnnouncement subject.
 	self refresh. 
+]
+
+{ #category : #'private-drawing' }
+DrmDiagramPresenter >> positionOriginLabel: originLabel destinationLabel: destinationLabel for: edge [
+	| startPoint endPoint vector |
+	startPoint := edge startPoint.
+	endPoint := edge endPoint.
+	vector := endPoint - startPoint.
+	originLabel position: startPoint + (vector * 0.125).
+	^ destinationLabel position: endPoint - (vector * 0.125)
 ]
 
 { #category : #'private-updating' }
