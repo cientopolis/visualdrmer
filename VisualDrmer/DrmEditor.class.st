@@ -231,8 +231,8 @@ DrmEditor >> editNode: aNode [
 
 { #category : #initialization }
 DrmEditor >> initialize [
-	model := DrmModel new.
-	super initialize
+	super initialize.
+	self model: DrmModel new
 ]
 
 { #category : #initialization }
@@ -240,12 +240,8 @@ DrmEditor >> initializePresenters [
 	fileToolBar := self buildFileToolBar.
 	layoutToolBar := self buildLayoutToolBar.
 	editToolBar := self buildEditToolBar.
-	diagramPresenter := DrmDiagramPresenter new
-		model: model;
-		yourself.
-	sourcesPresenter := SourcesPresenter new
-		model: model;
-		yourself.
+	diagramPresenter := DrmDiagramPresenter new.
+	sourcesPresenter := SourcesPresenter new.
 	tabManager := self newNotebook
 		addPage: self diagramTab;
 		addPage: self sourcesTab;
@@ -269,13 +265,13 @@ DrmEditor >> model: aDrmModel [
 		send: #modelChangedAnnouncement
 		to: self.
 	diagramPresenter model: aDrmModel.
-	sourcesPresenter model: aDrmModel
+	sourcesPresenter model: aDrmModel.
+	self updateWindowTitle
 ]
 
 { #category : #announcements }
 DrmEditor >> modelChangedAnnouncement [
-
-  self withWindowDo: [ :window | window title: model title ]
+	self updateWindowTitle
 ]
 
 { #category : #'private callbacks' }
@@ -360,6 +356,11 @@ DrmEditor >> tabManager [
 { #category : #accessing }
 DrmEditor >> tabManager: anObject [
 	tabManager := anObject
+]
+
+{ #category : #announcements }
+DrmEditor >> updateWindowTitle [
+	self withWindowDo: [ :window | window title: model title ]
 ]
 
 { #category : #'private callbacks' }
