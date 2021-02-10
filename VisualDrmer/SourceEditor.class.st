@@ -99,21 +99,21 @@ SourceEditor >> model: aDrmSource [
 SourceEditor >> updateModel [
 	self model
 		notes:
-			(notesText
+			((notesText
 				accept;
-				text).
+				text) ifNil: [ '' ]).
 	self model class ~= DrmReference
 		ifTrue: [ ^ self ].
 	self model
 		label:
-			(labelTextInput
+			((labelTextInput
 				accept;
-				text).
+				text) ifNil: [ '' ]).
 	self model
 		citation:
-			(citationText
+			((citationText
 				accept;
-				text)
+				text) ifNil: [ '' ])
 ]
 
 { #category : #'connection to model' }
